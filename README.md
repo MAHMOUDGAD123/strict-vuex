@@ -999,7 +999,7 @@ store.dispatch('wrongAction', {}); // Error: Action doesn't exist
 
 Mappers provide a clean way to bind store state, getters, actions, and mutations to component properties and methods.
 
-**OPTIONS API (shortened)**
+**OPTIONS API**
 
 This concise Options API example demonstrates common mapper usages:
 
@@ -1030,7 +1030,7 @@ export default defineComponent({
 </template>
 ```
 
-**COMPOSITION API (shortened)**
+**COMPOSITION API**
 
 ```html
 <script setup lang="ts">
