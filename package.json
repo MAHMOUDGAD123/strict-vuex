@@ -1,0 +1,32 @@
+{
+  "name": "strict-vuex",
+  "version": "0.0.3",
+  "description": "A comprehensive TypeScript type system to create a fully typed Vuex store",
+  "types": "index.d.ts",
+  "files": [
+    "index.d.ts"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MAHMOUDGAD123/strict-vuex.git"
+  },
+  "keywords": [
+    "typescript",
+    "vuex",
+    "vue",
+    "types",
+    "declaration"
+  ],
+  "author": "MAHMOUDGAD123",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {},
+  "packageManager": "pnpm@10.18.2",
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vue": "^3.5.22",
+    "vuex": "^4.1.0"
+  }
+}
