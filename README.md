@@ -921,208 +921,51 @@ Direct store access provides fully typed access to state, getters, actions, and 
 
 **OPTIONS API**
 
-In Options API components, access the store through `this.$store` with full type safety:
+Short mapper example showing common patterns (keeps type-safety):
 
 ```html
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState, mapActions, mapMutations } from 'vuex';
 
 export default defineComponent({
-  name: 'MyComponent',
-  
   computed: {
-    // Access state
-    rootValue() {
-      return this.$store.state.rootValue; // string
-    },
-    
-    moduleAValue() {
-      return this.$store.state.moduleA.valueA; // boolean
-    },
-    
-    deepNestedValue() {
-      return this.$store.state.moduleA.moduleAA.moduleAAA.valueAAA; // string
-    },
-    
-    // Access getters
-    rootGetter() {
-      return this.$store.getters.rootGetter; // string
-    },
-    
-    moduleGetter() {
-      return this.$store.getters['moduleA/getterA']; // string
-    },
-    
-    nestedGetter() {
-      return this.$store.getters['moduleA/moduleAAA/getterAAA']; // string
-    },
-    
-    // Parameterized getters
-    userById() {
-      return this.$store.getters['moduleA/getUserById']('123'); // User | undefined
-    }
+    ...mapState(['rootValue']),
+    ...mapState('moduleA', { aValue: 'valueA' })
   },
-  
   methods: {
-    // Dispatch actions
-    async fetchData() {
-      // Root action
-      await this.$store.dispatch('rootAction', { data: 'test' });
-      
-      // Namespaced action
-      const result = await this.$store.dispatch('moduleA/actionA', { id: '123' }); // boolean
-      
-      // Deep nested action
-      await this.$store.dispatch('moduleA/moduleAAA/actionAAA', { data: 'test' });
-      
-      // Action with null payload
-      await this.$store.dispatch('moduleB/refreshData', null);
-    },
-    
-    // Commit mutations
-    updateState() {
-      // Root mutation
-      this.$store.commit('SET_ROOT', { value: 'new value' });
-      
-      // Namespaced mutation
-      this.$store.commit('moduleA/SET_A', { value: true });
-      
-      // Deep nested mutation
-      this.$store.commit('moduleA/moduleAAA/SET_AAA', { value: 'updated' });
-      
-      // Mutation with null payload
-      this.$store.commit('RESET_STATE', null);
-      
-      // With options
-      this.$store.commit('UPDATE_USER', { user: userData }, { silent: true });
-    },
-    
-    // Complex example
-    async handleUserUpdate(userId: string) {
-      // Set loading
-      this.$store.commit('moduleA/SET_LOADING', { loading: true });
-      
-      try {
-        // Fetch user
-        const user = await this.$store.dispatch('moduleA/fetchUser', { id: userId });
-        
-        // Update related data
-        await this.$store.dispatch('moduleA/moduleAA/updateRelated', { userId: user.id });
-        
-        // Access updated state
-        const updated = this.$store.state.moduleA.valueA;
-        const count = this.$store.getters['moduleA/userCount'];
-        
-        return { user, updated, count };
-      } catch (error) {
-        this.$store.commit('moduleA/SET_ERROR', { error: error.message });
-        throw error;
-      } finally {
-        this.$store.commit('moduleA/SET_LOADING', { loading: false });
-      }
-    }
-  },
-  
-  mounted() {
-    // Access store in lifecycle hooks
-    console.log(this.$store.state.moduleA.valueA);
-    this.fetchData();
+    ...mapActions(['rootAction']),
+    ...mapActions('moduleA', ['actionA']),
+    ...mapMutations(['SET_ROOT', 'moduleA/SET_A'])
   }
 });
-</script>
-```
-
-**COMPOSITION API**
-
-In Composition API, use the `useStore()` hook to access the typed store:
-
-```html
-<script setup lang="ts">
-import { useStore } from 'vuex';
-import { computed } from 'vue';
-
-const store = useStore();
-
-// State access with computed
-const rootValue = computed(() => store.state.rootValue); // string
-const moduleAValue = computed(() => store.state.moduleA.valueA); // boolean
-const deepValue = computed(() => store.state.moduleA.moduleAA.moduleAAA.valueAAA); // string
-
-// ModuleB tree
-const moduleBValue = computed(() => store.state.moduleB.valueB); // string
-const moduleBBValue = computed(() => store.state.moduleB.moduleBB.valueBB); // number
-const moduleBBBValue = computed(() => store.state.moduleB.moduleBB.moduleBBB.valueBBB); // boolean
-
-// Getter access
-const rootGetter = computed(() => store.getters.rootGetter); // string
-const moduleGetter = computed(() => store.getters['moduleA/getterA']); // string
-const nestedGetter = computed(() => store.getters['moduleA/moduleAAA/getterAAA']); // string
-
-// Parameterized getters
-const getUserById = (id: string) => store.getters['moduleA/getUserById'](id);
-const activeUser = computed(() => getUserById('123')); // User | undefined
-
-// Actions
-const fetchData = async () => {
-  // Root action
-  await store.dispatch('rootAction', { data: 'test' });
-  
-  // Namespaced actions
-  const result = await store.dispatch('moduleA/actionA', { id: '123' }); // boolean
-  await store.dispatch('moduleA/moduleAAA/actionAAA', { data: 'test' });
-  
-  // ModuleB actions
-  await store.dispatch('moduleB/actionB', { value: 'data' });
-  await store.dispatch('moduleB/moduleBB/moduleBBB/actionBBB', { flag: true });
-};
-
-// Mutations
-const updateState = () => {
-  // Root mutations
-  store.commit('SET_ROOT', { value: 'new value' });
-  
-  // Namespaced mutations
-  store.commit('moduleA/SET_A', { value: true });
-  store.commit('moduleA/moduleAAA/SET_AAA', { value: 'updated' });
-  
-  // ModuleB mutations
-  store.commit('moduleB/SET_B', { value: 'new' });
-  store.commit('moduleB/moduleBB/SET_BB', { value: 50 });
-  store.commit('moduleB/moduleBB/moduleBBB/SET_BBB', { value: false });
-};
-
-// Complex operations
-const handleUserUpdate = async (userId: string) => {
-  store.commit('moduleA/SET_LOADING', { loading: true });
-  
-  try {
-    const user = await store.dispatch('moduleA/fetchUser', { id: userId });
-    await store.dispatch('moduleA/moduleAA/updateRelated', { userId: user.id });
-    
-    // Access state after updates
-    const updated = store.state.moduleA.valueA;
-    const count = store.getters['moduleA/userCount'];
-    
-    return { user, updated, count };
-  } catch (error) {
-    store.commit('moduleA/SET_ERROR', { error: error.message });
-    throw error;
-  } finally {
-    store.commit('moduleA/SET_LOADING', { loading: false });
-  }
-};
-
-// Direct usage in template
 </script>
 
 <template>
   <div>
-    <p>Root Value: {{ rootValue }}</p>
-    <p>Module A Value: {{ moduleAValue }}</p>
-    <p>Deep Nested: {{ deepValue }}</p>
-    <button @click="fetchData">Fetch Data</button>
-    <button @click="updateState">Update State</button>
+    <p>{{ rootValue }}</p>
+    <p>{{ aValue }}</p>
+    <button @click="rootAction({ data: 'ok' })">Action</button>
   </div>
+</template>
+```
+
+**COMPOSITION API**
+
+Short example for Composition API usage (recommended):
+
+```html
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+
+const store = useStore();
+const rootValue = computed(() => store.state.rootValue);
+const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
+</script>
+
+<template>
+  <div>{{ rootValue }}</div>
 </template>
 ```
 
@@ -1156,193 +999,38 @@ store.dispatch('wrongAction', {}); // Error: Action doesn't exist
 
 Mappers provide a clean way to bind store state, getters, actions, and mutations to component properties and methods.
 
-**OPTIONS API**
+**OPTIONS API (shortened)**
+
+This concise Options API example demonstrates common mapper usages:
 
 ```html
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex';
+import { mapState, mapActions, mapMutations } from 'vuex';
 
 export default defineComponent({
-  name: 'MapperExample',
-  
   computed: {
-    // Map root state
-    ...mapState([
-      'rootValue', // this.rootValue -> string
-      'user',      // this.user -> User | null
-    ]),
-    
-    // Map with custom names
-    ...mapState({
-      myRootValue: 'rootValue', // this.myRootValue -> string
-      currentUser: 'user',       // this.currentUser -> User | null
-      
-      // With function
-      moduleAValue: (state) => state.moduleA.valueA, // boolean
-      deepValue: (state) => state.moduleA.moduleAA.moduleAAA.valueAAA, // string
-      
-      // Complex computed
-      computedValue: (state, getters) => {
-        return `${state.rootValue} - ${getters.rootGetter}`;
-      }
-    }),
-    
-    // Map namespaced state
-    ...mapState('moduleA', [
-      'valueA' // this.valueA -> boolean
-    ]),
-    
-    ...mapState('moduleA', {
-      aValue: 'valueA', // Rename: this.aValue -> boolean
-      
-      // Access nested state within namespace
-      aaValue: (state) => state.moduleAA.valueAA, // number
-      aaaValue: (state) => state.moduleAA.moduleAAA.valueAAA // string
-    }),
-    
-    // Map root getters
-    ...mapGetters([
-      'rootGetter', // this.rootGetter -> string
-      'userInfo'    // this.userInfo -> string
-    ]),
-    
-    // Map namespaced getters
-    ...mapGetters('moduleA', [
-      'getterA',    // this.getterA -> string
-      'getterAA',   // this.getterAA -> number (if moduleAA is default)
-    ]),
-    
-    ...mapGetters('moduleA/moduleAAA', [
-      'getterAAA'   // this.getterAAA -> string
-    ]),
-    
-    // Map with renaming
-    ...mapGetters({
-      myRootGetter: 'rootGetter',
-      moduleAGetter: 'moduleA/getterA',
-      deepGetter: 'moduleA/moduleAAA/getterAAA'
-    }),
-    
-    // Multiple namespace mappings
-    ...mapState('moduleB', {
-      bValue: 'valueB',
-      bbValue: (state) => state.moduleBB.valueBB,
-      bbbValue: (state) => state.moduleBB.moduleBBB.valueBBB
-    }),
-    
-    ...mapGetters('moduleB/moduleBB/moduleBBB', ['getterBBB'])
+    ...mapState(['rootValue']),
+    ...mapState('moduleA', { aValue: 'valueA' })
   },
-  
   methods: {
-    // Map root actions
-    ...mapActions([
-      'rootAction', // this.rootAction({ data: 'test' })
-      'fetchUser'   // this.fetchUser({ id: '123' })
-    ]),
-    
-    // Map namespaced actions
-    ...mapActions('moduleA', [
-      'actionA',    // this.actionA({ id: '123' })
-    ]),
-    
-    ...mapActions('moduleA/moduleAAA', [
-      'actionAAA'   // this.actionAAA({ data: 'test' })
-    ]),
-    
-    // Map with custom names
-    ...mapActions({
-      fetchRoot: 'rootAction',
-      fetchModuleA: 'moduleA/actionA',
-      updateDeep: 'moduleA/moduleAAA/actionAAA',
-      
-      // Custom implementation
-      async customAction(dispatch) {
-        console.log('Before dispatch');
-        const result = await dispatch('moduleA/actionA', { id: '123' });
-        console.log('After dispatch:', result);
-        return result;
-      }
-    }),
-    
-    // Map root mutations
-    ...mapMutations([
-      'SET_ROOT',   // this.SET_ROOT({ value: 'new' })
-      'UPDATE_USER' // this.UPDATE_USER({ user: userData })
-    ]),
-    
-    // Map namespaced mutations
-    ...mapMutations('moduleA', [
-      'SET_A',      // this.SET_A({ value: true })
-    ]),
-    
-    ...mapMutations('moduleA/moduleAAA', [
-      'SET_AAA'     // this.SET_AAA({ value: 'new' })
-    ]),
-    
-    // Map with renaming
-    ...mapMutations({
-      updateRoot: 'SET_ROOT',
-      updateModuleA: 'moduleA/SET_A',
-      updateDeepValue: 'moduleA/moduleAAA/SET_AAA',
-      
-      // Custom implementation
-      customMutation(commit, payload) {
-        console.log('Custom mutation logic');
-        commit('moduleA/SET_A', { value: payload });
-      }
-    }),
-    
-    // Using mapped items in methods
-    async handleComplexOperation() {
-      // Use mapped state
-      console.log(this.rootValue); // From mapState
-      console.log(this.valueA);    // From namespaced mapState
-      
-      // Use mapped getters
-      console.log(this.rootGetter); // From mapGetters
-      console.log(this.getterA);    // From namespaced mapGetters
-      
-      // Use mapped actions
-      await this.rootAction({ data: 'test' });
-      const result = await this.actionA({ id: '123' });
-      
-      // Use mapped mutations
-      this.SET_ROOT({ value: 'updated' });
-      this.SET_A({ value: false });
-      
-      return result;
-    }
-  },
-  
-  mounted() {
-    // All mapped properties are available
-    console.log(this.rootValue);
-    console.log(this.moduleAValue);
-    this.fetchUser({ id: '123' });
+    ...mapActions(['rootAction']),
+    ...mapActions('moduleA', ['actionA']),
+    ...mapMutations(['SET_ROOT', 'moduleA/SET_A'])
   }
 });
 </script>
 
 <template>
   <div>
-    <!-- Use mapped state/getters in template -->
-    <p>Root: {{ rootValue }}</p>
-    <p>Module A: {{ valueA }}</p>
-    <p>Getter: {{ rootGetter }}</p>
-    <p>Deep: {{ aaaValue }}</p>
-    
-    <!-- Use mapped actions/mutations -->
-    <button @click="rootAction({ data: 'test' })">Root Action</button>
-    <button @click="actionA({ id: '123' })">Module Action</button>
-    <button @click="SET_ROOT({ value: 'new' })">Update Root</button>
+    <p>{{ rootValue }}</p>
+    <p>{{ aValue }}</p>
+    <button @click="rootAction({ data: 'ok' })">Action</button>
   </div>
 </template>
 ```
 
-**COMPOSITION API**
-
-Direct usage (recommended for Composition API) - no need for mappers here
+**COMPOSITION API (shortened)**
 
 ```html
 <script setup lang="ts">
@@ -1350,36 +1038,12 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore();
-
-const state = {
-  rootValue: computed(() => store.state.rootValue),
-  moduleAValue: computed(() => store.state.moduleA.valueA),
-  deepValue: computed(() => store.state.moduleA.moduleAA.moduleAAA.valueAAA)
-};
-
-const getters = {
-  rootGetter: computed(() => store.getters.rootGetter),
-  moduleAGetter: computed(() => store.getters['moduleA/getterA'])
-};
-
-const actions = {
-  rootAction: (payload: { data: string }) => store.dispatch('rootAction', payload),
-  actionA: (payload: { id: string }) => store.dispatch('moduleA/actionA', payload)
-};
-
-const mutations = {
-  SET_ROOT: (payload: { value: string }) => store.commit('SET_ROOT', payload),
-  SET_A: (payload: { value: boolean }) => store.commit('moduleA/SET_A', payload)
-};
+const rootValue = computed(() => store.state.rootValue);
+const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
 </script>
 
 <template>
-  <div>
-    <p>Root: {{ rootValue }}</p>
-    <p>Module A: {{ valueA }}</p>
-    <button @click="rootAction({ data: 'test' })">Action</button>
-    <button @click="SET_ROOT({ value: 'new' })">Mutation</button>
-  </div>
+  <div>{{ rootValue }}</div>
 </template>
 ```
 
