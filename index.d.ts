@@ -220,7 +220,7 @@ type StoreMutationsGeneric = Record<string, Record<string, any> | null>;
 // Generic types End
 // ---------------------------------------------------------------
 
-declare class _Store<RootState = StoreRootStateResolved, RootGetters = StoreRootGettersResolved> {
+export declare class _Store<RootState = StoreRootStateResolved, RootGetters = StoreRootGettersResolved> {
   constructor(options: _StoreOptions<RootState, RootGetters>);
 
   /**
@@ -410,7 +410,7 @@ declare class _Store<RootState = StoreRootStateResolved, RootGetters = StoreRoot
   }): void;
 }
 
-interface _StoreOptions<RootState, RootGetters> {
+export interface _StoreOptions<RootState, RootGetters> {
   state?: RootState | (() => RootState);
   // Pick only the the root getters but give the (StoreRootGettersResolved) to the callbacks getters
   getters?: _GetterTree<StoreRootStateResolved, RootGetters, StoreRootGettersResolved>;
@@ -422,11 +422,11 @@ interface _StoreOptions<RootState, RootGetters> {
   devtools?: boolean;
 }
 
-type _Plugin<State = StoreRootStateResolved, Getters = StoreRootGettersResolved> = (
+export type _Plugin<State = StoreRootStateResolved, Getters = StoreRootGettersResolved> = (
   store: _Store<State, Getters>,
 ) => any;
 
-interface _Payload<T = string> {
+export interface _Payload<T = string> {
   type: T;
 }
 
@@ -1419,7 +1419,7 @@ type ModulesInfoPathMap = {
  *
  * @info Can be `string` or `string[]`
  */
-type ValidModulePaths = {
+export type ValidModulePaths = {
   [K in keyof ModulesInfoNameMap]: IsGreaterOrEqual1<ModulesInfoNameMap[K]['depth']> extends false
     ? K | [K]
     : PathToTuple<ModulesInfoNameMap[K]['path']>;
@@ -1514,7 +1514,7 @@ type GetModuleTypeByName<Name extends ModuleNames> = _Module<
 /**
  * Holds all possible {@link _Module} types as union
  */
-type ModuleTypeUnion = {
+export type ModuleTypeUnion = {
   [K in keyof ModulesInfoNameMap]: GetModuleTypeByName<K>;
 }[keyof ModulesInfoNameMap];
 
@@ -1541,7 +1541,7 @@ type TupleToPath<T extends readonly string[]> = T extends readonly [infer First,
 /**
  * Convert module name to tuple
  */
-type NameToTuple<Name extends ModuleNames> = PathToTuple<ModulesInfoNameMap[Name]['path']>;
+export type NameToTuple<Name extends ModuleNames> = PathToTuple<ModulesInfoNameMap[Name]['path']>;
 
 // Module Path Fix End
 // ------------------------------------------------------------------
@@ -1639,7 +1639,7 @@ type ModulesInfoNamespaceMap = BuildNamespaceMap<Required<VuexStoreRootModules>>
 /**
  * All valid namespace paths that can be used with mappers
  */
-type ValidNamespaces = keyof ModulesInfoNamespaceMap;
+export type ValidNamespaces = keyof ModulesInfoNamespaceMap;
 
 // Module Namespace Fix End
 // ------------------------------------------------------------------
@@ -1648,7 +1648,7 @@ type ValidNamespaces = keyof ModulesInfoNamespaceMap;
 // ------------------------------------------------------------------
 
 // helper Types
-type Namespaces = ValidNamespaces;
+export type Namespaces = ValidNamespaces;
 type _CustomVue = Record<string, any> & ComponentPublicInstance;
 type _Computed<Return> = () => Return;
 type _InlineComputed<T extends Function> = T extends (...args: any[]) => infer R ? () => R : never;
