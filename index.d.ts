@@ -220,7 +220,7 @@ type StoreMutationsGeneric = Record<string, Record<string, any> | null>;
 // Generic types End
 // ---------------------------------------------------------------
 
-export declare class _Store<RootState = StoreRootStateResolved, RootGetters = StoreRootGettersResolved> {
+declare class _Store<RootState = StoreRootStateResolved, RootGetters = StoreRootGettersResolved> {
   constructor(options: _StoreOptions<RootState, RootGetters>);
 
   /**
@@ -679,6 +679,7 @@ type _TypedMutationPayload<M extends keyof StoreRootMutationsResolved> =
  * - `ModuleName`: must be the same as the name of the runtime module
  * - `Mode`: `default` -> (namespaced: false) | `isolated` -> (namespaced: true)
  * - `State`: the module state
+ * - `Getters`: the module getters
  * - `Actions`: the actions of the module - must be defined by {@link StoreActionRecord}
  * - `Mutations`: the module mutations
  * - `modules`: the module's children `undefined` by default
@@ -688,6 +689,7 @@ type _TypedMutationPayload<M extends keyof StoreRootMutationsResolved> =
  * type ModuleA = _Module<
  *  'moduleA',
  *  'isolated',
+ *  { stateA: string },
  *  { getterA: string },
  *  { actionA: StoreActionRecord<{ valA: string }, string, true> },
  *  { MUTATION_A: { valA: string } },
@@ -1387,17 +1389,17 @@ type ModulesActionsMapResolved = BuildModulesActionMap<
 /**
  * All module names
  */
-type ModuleNames = keyof ModulesInfoNameMap;
+export type ModuleNames = keyof ModulesInfoNameMap;
 
 /**
  * Hold all module paths as union
  */
-type ModulePaths = keyof ModulesInfoPathMap;
+export type ModulePaths = keyof ModulesInfoPathMap;
 
 /**
  * Paths as tuple
  */
-type ModulePathTuples = PathToTuple<ModulePaths>;
+export type ModulePathTuples = PathToTuple<ModulePaths>;
 
 /**
  * A map includes all modules with their name as keys
@@ -1501,7 +1503,7 @@ type GetModuleTypeByPath<Path extends ModulePaths> = _Module<
 /**
  * Get module {@link _Module} type by name
  */
-type GetModuleTypeByName<Name extends ModuleNames> = _Module<
+export type GetModuleTypeByName<Name extends ModuleNames> = _Module<
   Name,
   ModulesInfoNameMap[Name]['mode'],
   ModulesInfoNameMap[Name]['state'],
@@ -1539,7 +1541,7 @@ type TupleToPath<T extends readonly string[]> = T extends readonly [infer First,
   : '';
 
 /**
- * Convert module name to tuple
+ * Convert module name to path tuple
  */
 export type NameToTuple<Name extends ModuleNames> = PathToTuple<ModulesInfoNameMap[Name]['path']>;
 
@@ -1639,7 +1641,7 @@ type ModulesInfoNamespaceMap = BuildNamespaceMap<Required<VuexStoreRootModules>>
 /**
  * All valid namespace paths that can be used with mappers
  */
-export type ValidNamespaces = keyof ModulesInfoNamespaceMap;
+type ValidNamespaces = keyof ModulesInfoNamespaceMap;
 
 // Module Namespace Fix End
 // ------------------------------------------------------------------
@@ -1652,7 +1654,6 @@ export type Namespaces = ValidNamespaces;
 type _CustomVue = Record<string, any> & ComponentPublicInstance;
 type _Computed<Return> = () => Return;
 type _InlineComputed<T extends Function> = T extends (...args: any[]) => infer R ? () => R : never;
-type ActionMethod = (...args: any[]) => Promise<any>;
 
 // State
 // ##################################################################

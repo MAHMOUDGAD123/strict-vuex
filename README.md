@@ -68,11 +68,8 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
 - ✅ **Root Actions**: Proper typing for root-level actions in namespaced modules with `{ root: true }` flag
 - ✅ **Typed Mappers**: Fully typed `mapState`, `mapGetters`, `mapActions`, `mapMutations` helpers with namespace support
 - ✅ **Dynamic Module Registration**: Type-safe module registration/unregistration at runtime with path validation
-- ✅ **State Resolution by Module Name**: Deep state resolution using `ResolveModuleStateByName<ModuleName>` type
 - ✅ **Action Context**: Properly typed dispatch and commit within action contexts with module-aware types
-- ✅ **Module Information Mapping**: Complete module metadata access through `ModulesInfoNameMap` and `ModulesInfoPathMap`
 - ✅ **Path Validation**: Type-safe module paths for `hasModule`, `registerModule`, and `unregisterModule`
-- ✅ **Namespace Resolution**: Automatic namespace path resolution for isolated modules with `ModulesInfoNamespaceMap`
 - ✅ **Getters Resolution**: Full getter type resolution across module boundaries with proper namespace prefixing
 - ✅ **Mutations Resolution**: Complete mutation typing with namespace awareness
 - ✅ **Actions Resolution**: Action typing with root action support and proper return type inference
@@ -89,9 +86,6 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
 - ✅ **Custom Store Properties**: Extensible store types through TypeScript module augmentation
 - ✅ **Component Integration**: Automatic `$store` typing in Vue components through module augmentation
 - ✅ **State Functions**: Support for both object and function-style state definitions
-- ✅ **Action Record Types**: `StoreActionRecord<Payload, Return, RootLevel>` for precise action typing
-- ✅ **Module Type Generation**: Automatic module type generation with `GetModuleTypeByName` and `GetModuleTypeByPath`
-- ✅ **Valid Paths Union**: Type-safe path validation with `ValidModulePaths` union type
 - ✅ **Module Relationship Tracking**: Parent-child module relationships with depth and hierarchy information
 
 ## Installation
@@ -587,7 +581,7 @@ type ParentModule = _Module<
 
 **Empty Parameter**
 
-If any parameter of the 7 is empty and you won't assign any data to it
+If any parameter of the 7 parameters is empty and you won't assign any data to it
 all you have to do is just assign a type `never` to in the type declaration.
 
 ```ts
@@ -595,7 +589,7 @@ type ModuleWithNoGetters = _Module<
   'moduleWithNoGetters',
   'isolated',
   State,
-  never,
+  never, // Empty getters
   Actions,
   Mutations,
   Modules
@@ -930,22 +924,26 @@ import { mapState, mapActions, mapMutations } from 'vuex';
 
 export default defineComponent({
   computed: {
-    ...mapState(['rootValue']),
-    ...mapState('moduleA', { aValue: 'valueA' })
+    moduleBVal: () => this.$store.state.moduleA.moduleB.value
   },
   methods: {
-    ...mapActions(['rootAction']),
-    ...mapActions('moduleA', ['actionA']),
-    ...mapMutations(['SET_ROOT', 'moduleA/SET_A'])
+    increment(value: number) {
+      await this.$store.dispatch('moduleA/increment', { value });
+    },
+    resetCount() {
+      this.$store.commit('moduleA/RESET_COUNT');
+    }
   }
 });
 </script>
 
 <template>
   <div>
-    <p>{{ rootValue }}</p>
-    <p>{{ aValue }}</p>
-    <button @click="rootAction({ data: 'ok' })">Action</button>
+    <p>{{ $store.state.moduleA.count }}</p>
+    <p>{{ moduleBVal }}</p>
+    <p>{{ $store.getters['moduleA/doubleCount'] }}</p>
+    <button @click="increment(10)">+</button>
+    <button @click="resetCount">0</button>
   </div>
 </template>
 ```
@@ -1031,6 +1029,8 @@ export default defineComponent({
 ```
 
 **COMPOSITION API**
+
+No need to use mappers in Composition API
 
 ```html
 <script setup lang="ts">
