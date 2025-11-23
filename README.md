@@ -54,8 +54,24 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
       - [Cross-Module Communication](#cross-module-communication)
       - [Type-Safe Module State Resolution](#type-safe-module-state-resolution)
       - [Accessing Nested Modules in Context](#accessing-nested-modules-in-context)
+      - [Store Subscriptions](#store-subscriptions)
+      - [Watch API](#watch-api)
   - [Type Definitions Reference](#type-definitions-reference)
+    - [StoreActionRecord - interface](#storeactionrecord---interface)
+    - [\_Module - interface](#_module---interface)
+    - [ResolveModuleStateByName - type](#resolvemodulestatebyname---type)
+  - [API Reference](#api-reference)
+    - [Store Methods](#store-methods)
+    - [Mapper Functions](#mapper-functions)
   - [Best Practices](#best-practices)
+    - [Best Practices Examples](#best-practices-examples)
+      - [1. Always Use Object Payloads For Actions and Mutations](#1-always-use-object-payloads-for-actions-and-mutations)
+      - [2. Define Types Before Implementation](#2-define-types-before-implementation)
+      - [3. Use Consistent Naming Conventions](#3-use-consistent-naming-conventions)
+      - [4. Organize Module Structure](#4-organize-module-structure)
+      - [5. Handle Root Actions Properly](#5-handle-root-actions-properly)
+  - [Examples](#examples)
+    - [Complete Todo App Example](#complete-todo-app-example)
   - [⚡ Performance Tips](#-performance-tips)
     - [1. TypeScript Configuration (Required)](#1-typescript-configuration-required)
     - [2. VS Code Settings (Optional)](#2-vs-code-settings-optional)
@@ -610,120 +626,6 @@ const moduleWithNoGetters: ModuleWithNoGetters = {
 }
 ```
 
-**Complete Example**
-
-```ts
-// Define complete module with all parameters
-import type { _Module, StoreActionRecord } from "strict-vuex";
-import type { SubModuleA, SubModuleB } from "./submodules";
-
-// Define interfaces for clarity
-interface TodoState {
-  todos: Todo[];
-  filter: "all" | "active" | "completed";
-  loading: boolean;
-}
-
-interface TodoGetters {
-  filteredTodos: Todo[];
-  todoCount: number;
-  hasCompleted: boolean;
-}
-
-interface TodoActions {
-  fetchTodos: StoreActionRecord<null, Todo[]>;
-  addTodo: StoreActionRecord<{ text: string }, Todo>;
-  toggleTodo: StoreActionRecord<{ id: string }, void>;
-  clearCompleted: StoreActionRecord<null, number>;
-  syncGlobally: StoreActionRecord<{ force: boolean }, void, true>; // Root action
-}
-
-interface TodoMutations {
-  SET_TODOS: { todos: Todo[] };
-  ADD_TODO: { todo: Todo };
-  UPDATE_TODO: { id: string; updates: Partial<Todo> };
-  DELETE_TODO: { id: string };
-  SET_FILTER: { filter: TodoState["filter"] };
-  SET_LOADING: { loading: boolean };
-}
-
-// Define the module type
-export type TodoModule = _Module<
-  "todos", // 1. Module name
-  "isolated", // 2. Namespaced module
-  TodoState, // 3. State
-  TodoGetters, // 4. Getters
-  TodoActions, // 5. Actions
-  TodoMutations, // 6. Mutations
-  {
-    // 7. Child modules
-    subModuleA: SubModuleA;
-    subModuleB: SubModuleB;
-  }
->;
-
-// Implementation must match the type
-const todoModule: TodoModule = {
-  namespaced: true, // Must be true for 'isolated'
-  state: () => ({
-    todos: [],
-    filter: "all",
-    loading: false,
-  }),
-  getters: {
-    filteredTodos: (state) => {
-      /* implementation */
-    },
-    todoCount: (state) => state.todos.length,
-    hasCompleted: (state) => state.todos.some((t) => t.completed),
-  },
-  actions: {
-    fetchTodos: async ({ commit }) => {
-      /* implementation */
-    },
-    addTodo: async ({ commit }, payload) => {
-      /* implementation */
-    },
-    toggleTodo: async ({ commit }, payload) => {
-      /* implementation */
-    },
-    clearCompleted: async ({ commit, state }) => {
-      /* implementation */
-    },
-    syncGlobally: {
-      root: true, // Required for root actions
-      handler: async ({ dispatch }, payload) => {
-        /* implementation */
-      },
-    },
-  },
-  mutations: {
-    SET_TODOS(state, payload) {
-      /* implementation */
-    },
-    ADD_TODO(state, payload) {
-      /* implementation */
-    },
-    UPDATE_TODO(state, payload) {
-      /* implementation */
-    },
-    DELETE_TODO(state, payload) {
-      /* implementation */
-    },
-    SET_FILTER(state, payload) {
-      /* implementation */
-    },
-    SET_LOADING(state, payload) {
-      /* implementation */
-    },
-  },
-  modules: {
-    subModuleA,
-    subModuleB,
-  },
-};
-```
-
 ---
 
 ### Setup Step By Step
@@ -932,7 +834,7 @@ $store.dispatch("moduleA/moduleAAA/actionAAA", { data: "test" });
 
 ### Common Mistakes to Avoid
 
-- ❌ Forgetting to register modules in VuexStoreRootModules
+- ❌ Forgetting to register modules in `VuexStoreRootModules`
 - ❌ Module key mismatch between type and implementation
 - ❌ Wrong module name in \_Module first parameter
 - ❌ Missing child module types in parent definition
@@ -945,7 +847,7 @@ Direct store access provides fully typed access to state, getters, actions, and 
 
 **OPTIONS API**
 
-Short mapper example showing common patterns (keeps type-safety):
+Short example for Options API usage
 
 ```html
 <script lang="ts">
@@ -1075,31 +977,6 @@ No need to use mappers in Composition API
 <template>
   <div>{{ rootValue }}</div>
 </template>
-```
-
-**Root Actions in Mapped Components**
-
-```html
-<script lang="ts">
-  import { mapActions } from "vuex";
-
-  export default {
-    methods: {
-      // Mapping root-level actions from namespaced modules
-      ...mapActions("moduleA", ["globalAction"]), // If globalAction has root: true
-
-      // Usage with root flag
-      async handleGlobalAction() {
-        // For root actions defined in namespaced modules
-        // You need to pass { root: true } option
-        await this.globalAction(
-          { message: "Hello" },
-          { root: true } // Required for root actions
-        );
-      },
-    },
-  };
-</script>
 ```
 
 ---
@@ -1434,93 +1311,6 @@ globalAction: StoreActionRecord<PayloadType, ReturnType, true>
 
 // ❌ WRONG: Missing root flag in type
 globalAction: StoreActionRecord<PayloadType, ReturnType> // defaults to false
-```
-
-**Common Use Cases for Root Actions**
-
-```ts
-export type CommonModule = _Module<
-  "common",
-  "isolated",
-  CommonState,
-  CommonGetters,
-  {
-    // Global notification system
-    showNotification: StoreActionRecord<
-      { message: string; type: "success" | "error" | "warning" },
-      void,
-      true // Root action
-    >;
-
-    // Global loading state
-    setGlobalLoading: StoreActionRecord<
-      { loading: boolean; message?: string },
-      void,
-      true // Root action
-    >;
-
-    // Global error handler
-    handleGlobalError: StoreActionRecord<
-      { error: Error; context?: string },
-      void,
-      true // Root action
-    >;
-
-    // Cross-module communication
-    syncModules: StoreActionRecord<
-      { source: string; target: string; data: any },
-      boolean,
-      true // Root action
-    >;
-  },
-  CommonMutations,
-  undefined
->;
-
-const commonModule: CommonModule = {
-  namespaced: true,
-  actions: {
-    showNotification: {
-      root: true,
-      handler: async ({ commit }, payload) => {
-        commit("ADD_NOTIFICATION", payload, { root: true });
-        setTimeout(() => {
-          commit("REMOVE_NOTIFICATION", { id: Date.now() }, { root: true });
-        }, 5000);
-      },
-    },
-
-    setGlobalLoading: {
-      root: true,
-      handler: async ({ commit }, payload) => {
-        commit("SET_LOADING", payload, { root: true });
-      },
-    },
-
-    handleGlobalError: {
-      root: true,
-      handler: async ({ dispatch, commit }, payload) => {
-        console.error(`Error in ${payload.context}:`, payload.error);
-        await dispatch("showNotification", {
-          message: payload.error.message,
-          type: "error",
-        });
-        commit("LOG_ERROR", payload, { root: true });
-      },
-    },
-
-    syncModules: {
-      root: true,
-      handler: async ({ dispatch, state }, payload) => {
-        const sourceData = await dispatch(`${payload.source}/getData`, null, {
-          root: true,
-        });
-        await dispatch(`${payload.target}/setData`, sourceData, { root: true });
-        return true;
-      },
-    },
-  },
-};
 ```
 
 ---
@@ -2246,7 +2036,81 @@ actions: {
 }
 ```
 
-**Best Practice:** Use isolated (namespaced) modules to avoid naming conflicts and get better intellisense when working with deeply nested module hierarchies.
+#### Store Subscriptions
+
+```ts
+// Subscribe to mutations
+const unsubscribeMutation = store.subscribe((mutation, state) => {
+  // Fully typed mutation payload
+  console.log("Mutation:", mutation.type);
+  console.log("Payload:", mutation.payload);
+  console.log("New State:", state);
+
+  // Type narrowing
+  if (mutation.type === "SET_USER") {
+    console.log("User set to:", mutation.payload.username);
+  }
+});
+
+// Subscribe to actions
+const unsubscribeAction = store.subscribeAction({
+  before: (action, state) => {
+    console.log("Before action:", action.type);
+    console.log("Payload:", action.payload);
+  },
+  after: (action, state) => {
+    console.log("After action:", action.type);
+  },
+  error: (action, state, error) => {
+    console.error("Action error:", action.type, error);
+  },
+});
+
+// Simple action subscription (after only)
+const unsubscribe = store.subscribeAction((action, state) => {
+  console.log("Action completed:", action.type);
+});
+
+// Cleanup
+unsubscribeMutation();
+unsubscribeAction();
+```
+
+#### Watch API
+
+```ts
+// Watch specific state changes
+const unwatch = store.watch(
+  (state, getters) => state.user, // Getter function
+  (newValue, oldValue) => {
+    // Callback
+    console.log("User changed from", oldValue, "to", newValue);
+  },
+  {
+    deep: true, // Deep watch objects
+    immediate: true, // Call immediately with current value
+  }
+);
+
+// Watch computed values
+store.watch(
+  (state, getters) => getters.userInfo,
+  (newValue, oldValue) => {
+    console.log("User info updated:", newValue);
+  }
+);
+
+// Complex watched expressions
+store.watch(
+  (state) => state.moduleA.count + state.moduleB.value,
+  (sum) => {
+    console.log("Combined value:", sum);
+  }
+);
+
+// Cleanup
+unwatch();
+```
 
 ## Type Definitions Reference
 
@@ -2268,9 +2132,123 @@ This section summarizes the key types and declaration points provided by the `st
 
   - Use to declare actions payload/return types and whether they are root-level (`RootLevel = true`).
 
-- Utility/resolution types (read-only):
-  - `ResolveModuleStateByName<ModuleName>` — get a module's full resolved state including nested children.
-  - `ModulesStateMapResolved`, `ModulesGettersMapResolved`, `ModulesMutationsMapResolved`, `ModulesActionsMapResolved` — internal maps used to derive `store.dispatch` / `store.commit` / getters signatures.
+- `ResolveModuleStateByName<ModuleName>`:
+
+  - get a module's full resolved state including nested children.
+
+### StoreActionRecord - interface
+
+```ts
+interface StoreActionRecord<
+  Payload,
+  Return,
+  RootLevel extends boolean = false
+> {
+  payload: Payload;
+  return: Return;
+  root: RootLevel;
+}
+
+// Usage
+type MyAction = StoreActionRecord<
+  { id: string; data: any }, // Payload type
+  Promise<boolean>, // Return type
+  false // Is root action
+>;
+```
+
+### \_Module - interface
+
+```ts
+interface _Module<
+  ModuleName extends ModuleNames,
+  Mode extends ModuleMode, // 'default' | 'isolated'
+  State extends StoreStateGeneric = {},
+  Getters extends StoreGettersGeneric = {},
+  Actions extends StoreActionsGeneric = {},
+  Mutations extends StoreMutationsGeneric = {},
+  Modules = undefined // Nested modules
+>
+
+// Full example
+type CompleteModule = _Module<
+  'complete',
+  'isolated',
+  {
+    // State
+    counter: number;
+    data: string[];
+    settings: {
+      theme: 'light' | 'dark';
+      language: string;
+    };
+  },
+  {
+    // Getters
+    doubleCounter: number;
+    dataCount: number;
+    formattedData: string;
+  },
+  {
+    // Actions
+    increment: StoreActionRecord<{ amount: number }, void>;
+    fetchData: StoreActionRecord<null, string[]>;
+    updateSettings: StoreActionRecord<{ theme?: string; language?: string }, boolean>;
+  },
+  {
+    // Mutations
+    SET_COUNTER: { value: number };
+    ADD_DATA: { item: string };
+    UPDATE_SETTINGS: { theme?: string; language?: string };
+  },
+  {
+    // Nested modules
+    subModuleA: SubModuleA;
+    subModuleB: SubModuleB;
+  }
+>;
+```
+
+### ResolveModuleStateByName - type
+
+```ts
+type StateB = ResolveModuleStateByName<"moduleB">;
+// Result: { b: string, moduleC: { c: string } }
+
+// Usage in components or actions:
+const moduleState: ResolveModuleStateByName<"moduleB"> = // ...
+  console.log(moduleState.b); // string
+console.log(moduleState.moduleC.c); // string
+```
+
+## API Reference
+
+### Store Methods
+
+| Method           | Description                 | Type Signature                                |
+| ---------------- | --------------------------- | --------------------------------------------- |
+| state            | Access store state          | readonly RootState                            |
+| getters          | Access store getters        | readonly RootGetters                          |
+| dispatch         | Dispatch actions            | (type, payload?, options?) => Promise<Return> |
+| commit           | Commit mutations            | (type, payload?, options?) => void            |
+| subscribe        | Subscribe to mutations      | (fn, options?) => () => void                  |
+| subscribeAction  | Subscribe to actions        | (fn, options?) => () => void                  |
+| watch            | Watch reactive changes      | (getter, cb, options?) => () => void          |
+| registerModule   | Register module dynamically | (path, module, options?) => void              |
+| unregisterModule | Unregister module           | (path) => void                                |
+| hasModule        | Check module existence      | (path) => boolean                             |
+| hotUpdate        | Hot update modules          | (options) => void                             |
+| replaceState     | Replace entire state        | (state) => void                               |
+
+### Mapper Functions
+
+| Function                | Description                        | Usage                                |
+| ----------------------- | ---------------------------------- | ------------------------------------ |
+| mapState                | Map state to computed properties   | mapState(['prop'])                   |
+| mapGetters              | Map getters to computed properties | mapGetters(['getter'])               |
+| mapActions              | Map actions to methods             | mapActions(['action'])               |
+| mapMutations            | Map mutations to methods           | mapMutations(['mutation'])           |
+| createNamespacedHelpers | Create namespace-bound helpers     | createNamespacedHelpers('namespace') |
 
 ## Best Practices
 
@@ -2280,7 +2258,360 @@ This section summarizes the key types and declaration points provided by the `st
 - Keep mutations as objects (payloads) rather than primitive payload types — the type system expects consistent payload shapes.
 - For root actions declared with `StoreActionRecord<..., true>`, implement them as objects with `{ root: true, handler(...) { } }` — otherwise they will not be recognized as root actions by the types.
 - Use `skipLibCheck: true` in `tsconfig` if you run into external type conflicts while integrating (temporary mitigation, not a fix).
--
+
+### Best Practices Examples
+
+#### 1. Always Use Object Payloads For Actions and Mutations
+
+```ts
+// ✅ Good - object payload
+interface StoreRootActions {
+  updateUser: StoreActionRecord<{ id: string; name: string }, void>;
+}
+interface StoreRootMutations {
+  UPDATE_USER: { id: string; name: string };
+}
+
+// ❌ Bad - primitive payload
+interface StoreRootActions {
+  updateUser: StoreActionRecord<string, void>;
+}
+interface StoreRootMutations {
+  UPDATE_USER: string;
+}
+```
+
+#### 2. Define Types Before Implementation
+
+```ts
+// ✅ Good - define type first
+export type UserModule = _Module<
+  "user",
+  "isolated",
+  UserState,
+  UserGetters,
+  UserActions,
+  UserMutations
+>;
+
+const userModule: UserModule = {
+  // Implementation with full type safety
+};
+
+// ❌ Bad - no type definition
+const userModule = {
+  // No type safety
+};
+```
+
+#### 3. Use Consistent Naming Conventions
+
+```ts
+// ✅ Good - consistent naming
+interface StoreRootMutations {
+  SET_USER: { user: User };
+  UPDATE_USER: { updates: Partial<User> };
+  DELETE_USER: { id: string };
+}
+
+interface StoreRootActions {
+  fetchUser: StoreActionRecord<{ id: string }, User>;
+  saveUser: StoreActionRecord<{ user: User }, boolean>;
+  removeUser: StoreActionRecord<{ id: string }, void>;
+}
+```
+
+#### 4. Organize Module Structure
+
+```ts
+// store/modules/user/types.ts
+export interface UserState {
+  currentUser: User | null;
+  users: User[];
+  loading: boolean;
+}
+
+export interface UserGetters {
+  isAuthenticated: boolean;
+  currentUserName: string;
+}
+
+export interface UserActions {
+  login: StoreActionRecord<LoginPayload, boolean>;
+  logout: StoreActionRecord<null, void>;
+}
+
+export interface UserMutations {
+  SET_USER: { user: User | null };
+  SET_LOADING: { loading: boolean };
+}
+
+// store/modules/user/index.ts
+export type UserModule = _Module<
+  "user",
+  "isolated",
+  UserState,
+  UserGetters,
+  UserActions,
+  UserMutations
+>;
+
+const userModule: UserModule = {
+  // Implementation
+};
+```
+
+#### 5. Handle Root Actions Properly
+
+```ts
+// ✅ Good - root action properly defined
+export type GlobalModule = _Module<
+  "global",
+  "isolated",
+  {},
+  {},
+  {
+    globalNotification: StoreActionRecord<{ message: string }, void, true>; // true = root
+  },
+  {},
+  undefined
+>;
+
+const globalModule: GlobalModule = {
+  namespaced: true,
+  actions: {
+    globalNotification: {
+      root: true, // Must be an object with root: true
+      handler: async (ctx, payload) => {
+        // Implementation
+      },
+    },
+  },
+};
+```
+
+## Examples
+
+### Complete Todo App Example
+
+```ts
+// types/todo.ts
+export interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
+export interface TodoFilters {
+  status: 'all' | 'active' | 'completed';
+  searchTerm: string;
+}
+
+// store/modules/todos/types.ts
+import type { Todo, TodoFilters } from '@/types/todo';
+import type { StoreActionRecord } from 'vuex';
+
+export interface TodosState {
+  todos: Todo[];
+  filters: TodoFilters;
+  loading: boolean;
+}
+
+export interface TodosGetters {
+  filteredTodos: Todo[];
+  activeTodosCount: number;
+  completedTodosCount: number;
+}
+
+export interface TodosActions {
+  fetchTodos: StoreActionRecord<null, Todo[]>;
+  addTodo: StoreActionRecord<{ text: string }, Todo>;
+  updateTodo: StoreActionRecord<{ id: string; updates: Partial<Todo> }, boolean>;
+  deleteTodo: StoreActionRecord<{ id: string }, boolean>;
+  toggleTodo: StoreActionRecord<{ id: string }, boolean>;
+  clearCompleted: StoreActionRecord<null, number>;
+}
+
+export interface TodosMutations {
+  SET_TODOS: { todos: Todo[] };
+  ADD_TODO: { todo: Todo };
+  UPDATE_TODO: { id: string; updates: Partial<Todo> };
+  DELETE_TODO: { id: string };
+  SET_FILTER: { filter: Partial<TodoFilters> };
+  SET_LOADING: { loading: boolean };
+}
+
+// store/modules/todos/index.ts
+import type { _Module } from 'vuex';
+import type { TodosState, TodosGetters, TodosActions, TodosMutations } from './types';
+import { v4 as uuidv4 } from 'uuid';
+
+export type TodosModule = _Module<
+  'todos',
+  'isolated',
+  TodosState,
+  TodosGetters,
+  TodosActions,
+  TodosMutations
+>;
+
+const todosModule: TodosModule = {
+  namespaced: true,
+
+  state: () => ({
+    todos: [],
+    filters: {
+      status: 'all',
+      searchTerm: ''
+    },
+    loading: false
+  }),
+
+  getters: {
+    filteredTodos: (state) => {
+      let filtered = state.todos;
+
+      // Filter by status
+      if (state.filters.status !== 'all') {
+        filtered = filtered.filter(todo =>
+          state.filters.status === 'completed' ? todo.completed : !todo.completed
+        );
+      }
+
+      // Filter by search term
+      if (state.filters.searchTerm) {
+        filtered = filtered.filter(todo =>
+          todo.text.toLowerCase().includes(state.filters.searchTerm.toLowerCase())
+        );
+      }
+
+      return filtered;
+    },
+
+    activeTodosCount: (state) =>
+      state.todos.filter(todo => !todo.completed).length,
+
+    completedTodosCount: (state) =>
+      state.todos.filter(todo => todo.completed).length
+  },
+
+  actions: {
+    fetchTodos: async ({ commit }) => {
+      commit('SET_LOADING', { loading: true });
+      try {
+        const response = await api.getTodos();
+        commit('SET_TODOS', { todos: response.data });
+        return response.data;
+      } finally {
+        commit('SET_LOADING', { loading: false });
+      }
+    },
+
+    addTodo: async ({ commit }, payload) => {
+      const newTodo: Todo = {
+        id: uuidv4(),
+        text: payload.text,
+        completed: false,
+        createdAt: new Date()
+      };
+      commit('ADD_TODO', { todo: newTodo });
+      return newTodo;
+    },
+
+    updateTodo: async ({ commit }, payload) => {
+      commit('UPDATE_TODO', payload);
+      return true;
+    },
+
+    toggleTodo: async ({ commit, state }, payload) => {
+      const todo = state.todos.find(t => t.id === payload.id);
+      if (todo) {
+        commit('UPDATE_TODO', {
+          id: payload.id,
+          updates: { completed: !todo.completed }
+        });
+        return true;
+      }
+      return false;
+    },
+
+    deleteTodo: async ({ commit }, payload) => {
+      commit('DELETE_TODO', payload);
+      return true;
+    },
+
+    clearCompleted: async ({ commit, state }) => {
+      const completed = state.todos.filter(t => t.completed);
+      completed.forEach(todo => {
+        commit('DELETE_TODO', { id: todo.id });
+      });
+      return completed.length;
+    }
+  },
+
+  mutations: {
+    SET_TODOS(state, payload) {
+      state.todos = payload.todos;
+    },
+
+    ADD_TODO(state, payload) {
+      state.todos.push(payload.todo);
+    },
+
+    UPDATE_TODO(state, payload) {
+      const index = state.todos.findIndex(t => t.id === payload.id);
+      if (index !== -1) {
+        state.todos[index] = { ...state.todos[index], ...payload.updates };
+      }
+    },
+
+    DELETE_TODO(state, payload) {
+      state.todos = state.todos.filter(t => t.id !== payload.id);
+    },
+
+    SET_FILTER(state, payload) {
+      state.filters = { ...state.filters, ...payload.filter };
+    },
+
+    SET_LOADING(state, payload) {
+      state.loading = payload.loading;
+    }
+  }
+};
+
+export default todosModule;
+
+// components/TodoList.vue
+<template>
+  <div class="todo-list">
+    <div v-if="loading">Loading...</div>
+    <ul v-else>
+      <li v-for="todo in filteredTodos" :key="todo.id">
+        <input
+          type="checkbox"
+          :checked="todo.completed"
+          @change="toggleTodo({ id: todo.id })"
+        />
+        <span :class="{ completed: todo.completed }">{{ todo.text }}</span>
+        <button @click="deleteTodo({ id: todo.id })">Delete</button>
+      </li>
+    </ul>
+    <div class="stats">
+      Active: {{ activeTodosCount }} | Completed: {{ completedTodosCount }}
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, onMounted } from 'vue';
+import { mapState, mapGetters, mapActions } from 'vuex';
+
+export default defineComponent({
+  computed: {
+    ...mapState('todos', ['loading']),
+    ...mapGetters('todos', ['filteredTodos
+```
 
 ## ⚡ Performance Tips
 
