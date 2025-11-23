@@ -2,13 +2,13 @@
   <img src="./logo.svg" width="300" />
 </p>
 
-# Vuex Type System
+# Strict Vuex Type System
 
-A comprehensive TypeScript type system for Vuex that provides complete type safety for modules, state, getters, actions, mutations, and mappers.
+A comprehensive TypeScript type system for Vuex that provides complete type safety for modules, state, getters, actions, mutations, and mappers - This package will allow you to use vuex as-is but with a very strong and strict types to help you use it in a safe way.
 
 ## Table of Contents
 
-- [Vuex Type System](#vuex-type-system)
+- [Strict Vuex Type System](#strict-vuex-type-system)
   - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Installation](#installation)
@@ -16,7 +16,7 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
     - [TypeScript Configuration](#typescript-configuration)
     - [Troubleshooting Installation Issues](#troubleshooting-installation-issues)
   - [Naming Conventions](#naming-conventions)
-  - [Project Structure](#project-structure)
+  - [Project Store Structure](#project-store-structure)
     - [Best Practices for Structure](#best-practices-for-structure)
     - [Module Hierarchy](#module-hierarchy)
     - [Module Communication Pattern](#module-communication-pattern)
@@ -190,41 +190,36 @@ Ensure you're using compatible versions:
 | Getter Names         | camelCase                | isLoggedIn, totalCount     |
 
 
-## Project Structure
+## Project Store Structure
 
 
 ```text
 src/
-├── store/
-│   ├── index.ts                    # Root store configuration
-│   ├── modules/
-│   │   ├── moduleA/
-│   │   │   ├── index.ts            # ModuleA definition
-│   │   │   ├── types.ts            # ModuleA type interfaces
-│   │   │   └── modules/
-│   │   │       ├── moduleAA/
-│   │   │       │   ├── index.ts    # ModuleAA definition
-│   │   │       │   ├── types.ts    # ModuleAA type interfaces
-│   │   │       │   └── modules/
-│   │   │       │       └── moduleAAA/
-│   │   │       │           ├── index.ts    # ModuleAAA definition
-│   │   │       │           └── types.ts    # ModuleAAA type interfaces
-│   │   │       └── moduleB/
-│   │   │           ├── index.ts    # ModuleB definition
-│   │   │           ├── types.ts    # ModuleB type interfaces
-│   │   │           └── modules/
-│   │   │               └── moduleBB/
-│   │   │                   ├── index.ts    # ModuleBB definition
-│   │   │                   ├── types.ts    # ModuleBB type interfaces
-│   │   │                   └── modules/
-│   │   │                       └── moduleBBB/
-│   │   │                           ├── index.ts    # ModuleBBB definition
-│   │   │                           └── types.ts    # ModuleBBB type interfaces
-│   │   └── types/
-│   │       └── modules.d.ts        # Module type exports
-│   ├── components/                 # Vue components
-│   ├── views/                      # Vue views/pages
-│   └── main.ts                     # App entry point
+└── store/
+    ├── index.ts                    # Root store configuration
+    └── modules/
+        ├── moduleA/
+        │   ├── index.ts            # ModuleA definition
+        │   ├── types.ts            # ModuleA type interfaces
+        │   └── modules/
+        │       └── moduleAA/
+        │           ├── index.ts    # ModuleAA definition
+        │           ├── types.ts    # ModuleAA type interfaces
+        │           └── modules/
+        │               └── moduleAAA/
+        │                   ├── index.ts    # ModuleAAA definition
+        │                   └── types.ts    # ModuleAAA type interfaces
+        └── moduleB/
+             ├── index.ts    # ModuleB definition
+             ├── types.ts    # ModuleB type interfaces
+             └── modules/
+                 └── moduleBB/
+                     ├── index.ts    # ModuleBB definition
+                     ├── types.ts    # ModuleBB type interfaces
+                     └── modules/
+                         └── moduleBBB/
+                             ├── index.ts    # ModuleBBB definition
+                             └── types.ts    # ModuleBBB type interfaces
 ```
 
 ### Best Practices for Structure
@@ -763,10 +758,10 @@ And you can use the next interfaces to define the root data if you want too:
 
 `VuexStoreRootState`, `VuexStoreRootGetters`, `VuexStoreRootActions`, `VuexStoreRootMutations`
 
-And you can do this by simply extending the `strict-vuex` module in the app and i choose to extend it in the `src/stores/index.ts` file which contains the root level data:
+And you can do this by simply extending the `strict-vuex` module in the app and i choose to extend it in the `src/store/index.ts` file which contains the root level data:
 
 ```ts
-// src/stores/index.ts
+// src/store/index.ts
 import type { ModuleA } from '@/store/modules/moduleA/types';
 import type { ModuleB } from '@/store/modules/moduleB/types';
 
