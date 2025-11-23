@@ -119,7 +119,7 @@ declare module 'vuex' {
    */
   declare function createStore<RootState = VuexStoreRootState, RootGetters = VuexStoreRootGetters>(
     options: _StoreOptions<RootState, RootGetters>,
-  ): _Store<RootState, RootGetters>;
+  ): _Store<StoreRootStateResolved, StoreRootGettersResolved>;
 
   /**
    * A Composition API equivalent of `this.$store` in the Options API.
