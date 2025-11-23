@@ -73,7 +73,7 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
   - [Examples](#examples)
     - [Complete Todo App Example](#complete-todo-app-example)
   - [⚡ Performance Tips](#-performance-tips)
-    - [1. TypeScript Configuration (Required)](#1-typescript-configuration-required)
+    - [1. TypeScript Configuration (Recommended)](#1-typescript-configuration-recommended)
     - [2. VS Code Settings (Optional)](#2-vs-code-settings-optional)
     - [3. Git Ignore](#3-git-ignore)
     - [4. Restart TypeScript Server](#4-restart-typescript-server)
@@ -2617,7 +2617,7 @@ export default defineComponent({
 
 For optimal TypeScript performance in large codebases, apply these essential optimizations:
 
-### 1. TypeScript Configuration (Required)
+### 1. TypeScript Configuration (Recommended)
 
 **Vue 3 Projects:** Add to your `tsconfig.app.json`:
 
