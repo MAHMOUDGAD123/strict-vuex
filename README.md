@@ -56,6 +56,11 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
       - [Accessing Nested Modules in Context](#accessing-nested-modules-in-context)
   - [Type Definitions Reference](#type-definitions-reference)
   - [Best Practices](#best-practices)
+  - [⚡ Performance Tips](#-performance-tips)
+    - [1. TypeScript Configuration (Required)](#1-typescript-configuration-required)
+    - [2. VS Code Settings (Optional)](#2-vs-code-settings-optional)
+    - [3. Git Ignore](#3-git-ignore)
+    - [4. Restart TypeScript Server](#4-restart-typescript-server)
   - [Migration Guide](#migration-guide)
   - [Troubleshooting](#troubleshooting)
   - [FAQ](#faq)
@@ -104,9 +109,10 @@ yarn add strict-vuex -D
 # Using pnpm 🤍
 pnpm add strict-vuex -D
 ```
+
 ### TypeScript Configuration
 
-***for PNPM users - you have to add the path mapping for vuex***
+**_for PNPM users - you have to add the path mapping for vuex_**
 
 ```json
 {
@@ -126,14 +132,18 @@ pnpm add strict-vuex -D
 If TypeScript can't find Vuex types:
 
 1. Clear TypeScript cache:
+
 ```bash
 rm -rf node_modules/.cache
 rm -rf node_modules/.tmp
 ```
+
 2. Restart TypeScript service in your IDE:
+
    - VSCode: `Cmd/Ctrl` + `Shift` + `P` → "TypeScript: Restart TS Server"
 
 3. Rebuild node_modules:
+
 ```bash
 rm -rf node_modules package-lock.json
 pnpm install
@@ -145,6 +155,7 @@ If you see duplicate identifier errors:
 
 1. Ensure you don't have multiple Vuex type declarations
 2. Check that skipLibCheck is set to true in tsconfig:
+
 ```bash
 {
   "compilerOptions": {
@@ -158,10 +169,10 @@ If you see duplicate identifier errors:
 Ensure you're using compatible versions:
 
 | Vue Version | Vuex Version | TypeScript Version |
-|-------------|--------------|-------------------|
-| Vue 3.x     | Vuex 4.x     | TypeScript 4.5+   |
-| Vue 2.7     | Vuex 3.x     | TypeScript 4.5+   |
-| Vue 2.6     | Vuex 3.x     | TypeScript 3.5+   |
+| ----------- | ------------ | ------------------ |
+| Vue 3.x     | Vuex 4.x     | TypeScript 4.5+    |
+| Vue 2.7     | Vuex 3.x     | TypeScript 4.5+    |
+| Vue 2.6     | Vuex 3.x     | TypeScript 3.5+    |
 
 **Post-Installation Checklist**
 
@@ -175,23 +186,20 @@ Ensure you're using compatible versions:
 
 ## Naming Conventions
 
-
-| Element              | Convention               | Example                    |
-|----------------------|--------------------------|----------------------------|
-| Module Files         | camelCase                | moduleA/index.ts           |
-| Type Files           | camelCase                | types.ts                   |
-| Module Types         | PascalCase               | ModuleA, ModuleAA          |
-| State Interface      | PascalCase + State       | ModuleAState               |
-| Getters Interface    | PascalCase + Getters     | ModuleAGetters             |
-| Actions Interface    | PascalCase + Actions     | ModuleAActions             |
-| Mutations Interface  | PascalCase + Mutations   | ModuleAMutations           |
-| Action Names         | camelCase                | fetchData, updateUser      |
-| Mutation Names       | SCREAMING_SNAKE_CASE     | SET_DATA, UPDATE_USER      |
-| Getter Names         | camelCase                | isLoggedIn, totalCount     |
-
+| Element             | Convention             | Example                |
+| ------------------- | ---------------------- | ---------------------- |
+| Module Files        | camelCase              | moduleA/index.ts       |
+| Type Files          | camelCase              | types.ts               |
+| Module Types        | PascalCase             | ModuleA, ModuleAA      |
+| State Interface     | PascalCase + State     | ModuleAState           |
+| Getters Interface   | PascalCase + Getters   | ModuleAGetters         |
+| Actions Interface   | PascalCase + Actions   | ModuleAActions         |
+| Mutations Interface | PascalCase + Mutations | ModuleAMutations       |
+| Action Names        | camelCase              | fetchData, updateUser  |
+| Mutation Names      | SCREAMING_SNAKE_CASE   | SET_DATA, UPDATE_USER  |
+| Getter Names        | camelCase              | isLoggedIn, totalCount |
 
 ## Project Store Structure
-
 
 ```text
 src/
@@ -223,6 +231,7 @@ src/
 ```
 
 ### Best Practices for Structure
+
 1. Keep modules focused - Each module should handle a single feature/domain
 2. Consistent nesting - Follow the same structure pattern throughout
 3. Type-first approach - Define types before implementation
@@ -233,6 +242,7 @@ src/
 ### Module Hierarchy
 
 The module tree structure for this example:
+
 - `root` → `moduleA` → `moduleAA` → `moduleAAA`
 - `root` → `moduleB` → `moduleBB` → `moduleBBB`
 
@@ -244,7 +254,7 @@ The module tree structure for this example:
       ├────────────────┤
       │                │
       ▼                ▼
-   moduleA          moduleB  
+   moduleA          moduleB
       │                │
       ▼                ▼
   moduleAA         moduleBB
@@ -282,7 +292,7 @@ store/
 
 ## Quick Start
 
-### Understanding the _Module Type Parameters
+### Understanding the \_Module Type Parameters
 
 The `_Module` type is the core of the type system. It accepts 7 parameters that define every aspect of your module:
 
@@ -323,8 +333,8 @@ const parentModule: ParentModule = {
 
 Determines if the module is namespaced or not:
 
-  - `'isolated'` → `{ namespaced: true }` (creates namespace)
-  - `'default'` → `{ namespaced: false }` (no namespace)
+- `'isolated'` → `{ namespaced: true }` (creates namespace)
+- `'default'` → `{ namespaced: false }` (no namespace)
 
 ```ts
 // Isolated module - creates namespace 'userModule/'
@@ -440,15 +450,15 @@ const module1: Module1 = {
 Use `StoreActionRecord<Payload, Return, RootLevel>` to define actions:
 
 ```ts
- interface StoreActionRecord<
-    Payload,
-    Return,
-    RootLevel extends boolean = false
-  > {
-    payload: Payload; // the action payload type
-    return: Return;   // the action return type
-    root: RootLevel;  // if true the action will be a root level action
-  }
+interface StoreActionRecord<
+  Payload,
+  Return,
+  RootLevel extends boolean = false
+> {
+  payload: Payload; // the action payload type
+  return: Return; // the action return type
+  root: RootLevel; // if true the action will be a root level action
+}
 ```
 
 ```ts
@@ -460,13 +470,13 @@ type MyModule = _Module<
   {
     // Simple action - no payload - no return
     fetchData: StoreActionRecord<null, void>;
-    
+
     // Action with payload
     updateUser: StoreActionRecord<
       { id: string; data: Partial<User> },  // Payload type
       User                                  // Return type
     >;
-    
+
     // Root-level action (accessible globally)
     globalNotify: StoreActionRecord<
       { message: string },
@@ -549,27 +559,27 @@ Define nested modules or use `undefined` for leaf modules:
 ```ts
 // Leaf module (no children)
 type LeafModule = _Module<
-  'leaf',
-  'isolated',
+  "leaf",
+  "isolated",
   State,
   Getters,
   Actions,
   Mutations,
-  undefined  // No child modules
+  undefined // No child modules
 >;
 
 // Parent module with children
 type ParentModule = _Module<
-  'parent',
-  'isolated',
+  "parent",
+  "isolated",
   State,
   Getters,
   Actions,
   Mutations,
   {
-    childA: ChildModuleA;  // Child module type
-    childB: ChildModuleB;  // Another child
-    optionalChild?: OptionalModule;  // Optional child module (used with module registed with registerModule() API at runtime)
+    childA: ChildModuleA; // Child module type
+    childB: ChildModuleB; // Another child
+    optionalChild?: OptionalModule; // Optional child module (used with module registed with registerModule() API at runtime)
   }
 >;
 ```
@@ -604,13 +614,13 @@ const moduleWithNoGetters: ModuleWithNoGetters = {
 
 ```ts
 // Define complete module with all parameters
-import type { _Module, StoreActionRecord } from 'strict-vuex';
-import type { SubModuleA, SubModuleB } from './submodules';
+import type { _Module, StoreActionRecord } from "strict-vuex";
+import type { SubModuleA, SubModuleB } from "./submodules";
 
 // Define interfaces for clarity
 interface TodoState {
   todos: Todo[];
-  filter: 'all' | 'active' | 'completed';
+  filter: "all" | "active" | "completed";
   loading: boolean;
 }
 
@@ -633,19 +643,20 @@ interface TodoMutations {
   ADD_TODO: { todo: Todo };
   UPDATE_TODO: { id: string; updates: Partial<Todo> };
   DELETE_TODO: { id: string };
-  SET_FILTER: { filter: TodoState['filter'] };
+  SET_FILTER: { filter: TodoState["filter"] };
   SET_LOADING: { loading: boolean };
 }
 
 // Define the module type
 export type TodoModule = _Module<
-  'todos',        // 1. Module name
-  'isolated',     // 2. Namespaced module
-  TodoState,      // 3. State
-  TodoGetters,    // 4. Getters
-  TodoActions,    // 5. Actions
-  TodoMutations,  // 6. Mutations
-  {               // 7. Child modules
+  "todos", // 1. Module name
+  "isolated", // 2. Namespaced module
+  TodoState, // 3. State
+  TodoGetters, // 4. Getters
+  TodoActions, // 5. Actions
+  TodoMutations, // 6. Mutations
+  {
+    // 7. Child modules
     subModuleA: SubModuleA;
     subModuleB: SubModuleB;
   }
@@ -653,39 +664,63 @@ export type TodoModule = _Module<
 
 // Implementation must match the type
 const todoModule: TodoModule = {
-  namespaced: true,  // Must be true for 'isolated'
+  namespaced: true, // Must be true for 'isolated'
   state: () => ({
     todos: [],
-    filter: 'all',
-    loading: false
+    filter: "all",
+    loading: false,
   }),
   getters: {
-    filteredTodos: (state) => { /* implementation */ },
+    filteredTodos: (state) => {
+      /* implementation */
+    },
     todoCount: (state) => state.todos.length,
-    hasCompleted: (state) => state.todos.some(t => t.completed)
+    hasCompleted: (state) => state.todos.some((t) => t.completed),
   },
   actions: {
-    fetchTodos: async ({ commit }) => { /* implementation */ },
-    addTodo: async ({ commit }, payload) => { /* implementation */ },
-    toggleTodo: async ({ commit }, payload) => { /* implementation */ },
-    clearCompleted: async ({ commit, state }) => { /* implementation */ },
+    fetchTodos: async ({ commit }) => {
+      /* implementation */
+    },
+    addTodo: async ({ commit }, payload) => {
+      /* implementation */
+    },
+    toggleTodo: async ({ commit }, payload) => {
+      /* implementation */
+    },
+    clearCompleted: async ({ commit, state }) => {
+      /* implementation */
+    },
     syncGlobally: {
-      root: true,  // Required for root actions
-      handler: async ({ dispatch }, payload) => { /* implementation */ }
-    }
+      root: true, // Required for root actions
+      handler: async ({ dispatch }, payload) => {
+        /* implementation */
+      },
+    },
   },
   mutations: {
-    SET_TODOS(state, payload) { /* implementation */ },
-    ADD_TODO(state, payload) { /* implementation */ },
-    UPDATE_TODO(state, payload) { /* implementation */ },
-    DELETE_TODO(state, payload) { /* implementation */ },
-    SET_FILTER(state, payload) { /* implementation */ },
-    SET_LOADING(state, payload) { /* implementation */ }
+    SET_TODOS(state, payload) {
+      /* implementation */
+    },
+    ADD_TODO(state, payload) {
+      /* implementation */
+    },
+    UPDATE_TODO(state, payload) {
+      /* implementation */
+    },
+    DELETE_TODO(state, payload) {
+      /* implementation */
+    },
+    SET_FILTER(state, payload) {
+      /* implementation */
+    },
+    SET_LOADING(state, payload) {
+      /* implementation */
+    },
   },
   modules: {
     subModuleA,
-    subModuleB
-  }
+    subModuleB,
+  },
 };
 ```
 
@@ -693,7 +728,7 @@ const todoModule: TodoModule = {
 
 ### Setup Step By Step
 
-***→ You need to make the type system see your modules tree types 👀***
+**_→ You need to make the type system see your modules tree types 👀_**
 
 The key to making the Vuex type system work is proper module registration in the type declarations. Follow these steps to set up your typed store:
 
@@ -705,11 +740,11 @@ Start from the deepest modules and work your way up to the root:
 
 ```ts
 // src/store/modules/moduleA/modules/moduleAA/modules/moduleAAA/types.ts
-import type { _Module, StoreActionRecord } from 'strict-vuex';
+import type { _Module, StoreActionRecord } from "strict-vuex";
 
 export type ModuleAAA = _Module<
-  'moduleAAA',
-  'isolated',
+  "moduleAAA",
+  "isolated",
   { valueAAA: string },
   { getterAAA: string },
   { actionAAA: StoreActionRecord<{ data: string }, void> },
@@ -720,11 +755,11 @@ export type ModuleAAA = _Module<
 
 ```ts
 // src/store/modules/moduleA/modules/moduleAA/types.ts
-import type { ModuleAAA } from './modules/moduleAAA/types';
+import type { ModuleAAA } from "./modules/moduleAAA/types";
 
 export type ModuleAA = _Module<
-  'moduleAA',
-  'default',
+  "moduleAA",
+  "default",
   { valueAA: number },
   { getterAA: number },
   { actionAA: StoreActionRecord<{ val: number }, string> },
@@ -735,11 +770,11 @@ export type ModuleAA = _Module<
 
 ```ts
 // src/store/modules/moduleA/types.ts
-import type { ModuleAA } from './modules/moduleAA/types';
+import type { ModuleAA } from "./modules/moduleAA/types";
 
 export type ModuleA = _Module<
-  'moduleA',
-  'isolated',
+  "moduleA",
+  "isolated",
   { valueA: boolean },
   { getterA: string },
   { actionA: StoreActionRecord<{ id: string }, boolean> },
@@ -804,26 +839,26 @@ Starting from this step you will find that vuex system is fully typed and TypeSc
 
 ```ts
 // src/store/modules/moduleA/modules/moduleAA/modules/moduleAAA/index.ts
-import type { ModuleAAA } from './types';
+import type { ModuleAAA } from "./types";
 
 const moduleAAA: ModuleAAA = {
   namespaced: true, // isolated = true
   state: {
-    valueAAA: 'AAA'
+    valueAAA: "AAA",
   },
   getters: {
-    getterAAA: (state) => state.valueAAA
+    getterAAA: (state) => state.valueAAA,
   },
   actions: {
     actionAAA: async ({ commit }, payload) => {
-      commit('SET_AAA', { value: payload.data });
-    }
+      commit("SET_AAA", { value: payload.data });
+    },
   },
   mutations: {
     SET_AAA(state, payload) {
       state.valueAAA = payload.value;
-    }
-  }
+    },
+  },
 };
 
 export default moduleAAA;
@@ -835,31 +870,31 @@ export default moduleAAA;
 
 ```ts
 // src/store/index.ts
-import { createStore } from 'vuex';
-import moduleA from './modules/moduleA';
-import moduleB from './modules/moduleB';
+import { createStore } from "vuex";
+import moduleA from "./modules/moduleA";
+import moduleB from "./modules/moduleB";
 
 const store = createStore({
   state: {
-    rootValue: 'root'
+    rootValue: "root",
   },
   getters: {
-    rootGetter: (state) => state.rootValue
+    rootGetter: (state) => state.rootValue,
   },
   actions: {
     rootAction: async ({ commit }, payload) => {
-      commit('SET_ROOT', { value: payload.data });
-    }
+      commit("SET_ROOT", { value: payload.data });
+    },
   },
   mutations: {
     SET_ROOT(state, payload) {
       state.rootValue = payload.value;
-    }
+    },
   },
   modules: {
-    moduleA,  // Key must match VuexStoreRootModules interface
-    moduleB
-  }
+    moduleA, // Key must match VuexStoreRootModules interface
+    moduleB,
+  },
 });
 
 export default store;
@@ -870,21 +905,21 @@ export default store;
 The type system will now provide full IntelliSense - and you will find that it's so easy to use vuex
 
 ```ts
-// 
+//
 $store.state.rootValue; // string
 $store.state.moduleA.valueA; // boolean
 $store.state.moduleA.moduleAA.valueAA; // number
 $store.state.moduleA.moduleAA.moduleAAA.valueAAA; // string
 
 // Namespaced access for isolated modules
-$store.getters['moduleA/getterA']; // string
-$store.getters['moduleA/getterAA']; // number (default module, no namespace)
-$store.getters['moduleA/moduleAAA/getterAAA']; // string
+$store.getters["moduleA/getterA"]; // string
+$store.getters["moduleA/getterAA"]; // number (default module, no namespace)
+$store.getters["moduleA/moduleAAA/getterAAA"]; // string
 
 // Actions with proper payload types
-$store.dispatch('rootAction', { data: 'test' });
-$store.dispatch('moduleA/actionA', { id: '123' });
-$store.dispatch('moduleA/moduleAAA/actionAAA', { data: 'test' });
+$store.dispatch("rootAction", { data: "test" });
+$store.dispatch("moduleA/actionA", { id: "123" });
+$store.dispatch("moduleA/moduleAAA/actionAAA", { data: "test" });
 ```
 
 ### How the Type System Works
@@ -899,7 +934,7 @@ $store.dispatch('moduleA/moduleAAA/actionAAA', { data: 'test' });
 
 - ❌ Forgetting to register modules in VuexStoreRootModules
 - ❌ Module key mismatch between type and implementation
-- ❌ Wrong module name in _Module first parameter
+- ❌ Wrong module name in \_Module first parameter
 - ❌ Missing child module types in parent definition
 
 ## Usage
@@ -914,22 +949,22 @@ Short mapper example showing common patterns (keeps type-safety):
 
 ```html
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapState, mapActions, mapMutations } from 'vuex';
+  import { defineComponent } from "vue";
+  import { mapState, mapActions, mapMutations } from "vuex";
 
-export default defineComponent({
-  computed: {
-    moduleBVal: () => this.$store.state.moduleA.moduleB.value
-  },
-  methods: {
-    increment(value: number) {
-      await this.$store.dispatch('moduleA/increment', { value });
+  export default defineComponent({
+    computed: {
+      moduleBVal: () => this.$store.state.moduleA.moduleB.value,
     },
-    resetCount() {
-      this.$store.commit('moduleA/RESET_COUNT');
-    }
-  }
-});
+    methods: {
+      increment(value: number) {
+        await this.$store.dispatch("moduleA/increment", { value });
+      },
+      resetCount() {
+        this.$store.commit("moduleA/RESET_COUNT");
+      },
+    },
+  });
 </script>
 
 <template>
@@ -949,12 +984,12 @@ Short example for Composition API usage (recommended):
 
 ```html
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useStore } from 'vuex';
+  import { computed } from "vue";
+  import { useStore } from "vuex";
 
-const store = useStore();
-const rootValue = computed(() => store.state.rootValue);
-const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
+  const store = useStore();
+  const rootValue = computed(() => store.state.rootValue);
+  const doActionA = (p: any) => store.dispatch("moduleA/actionA", p);
 </script>
 
 <template>
@@ -971,7 +1006,7 @@ const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
 this.$store.state.moduleA.? // Autocomplete shows: valueA, moduleAA
 this.$store.dispatch('?') // Autocomplete shows available actions
 
-// Composition API  
+// Composition API
 store.state.moduleA.? // Autocomplete shows: valueA, moduleAA
 store.dispatch('?') // Autocomplete shows available actions
 
@@ -998,20 +1033,20 @@ This concise Options API example demonstrates common mapper usages:
 
 ```html
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapState, mapActions, mapMutations } from 'vuex';
+  import { defineComponent } from "vue";
+  import { mapState, mapActions, mapMutations } from "vuex";
 
-export default defineComponent({
-  computed: {
-    ...mapState(['rootValue']),
-    ...mapState('moduleA', { aValue: 'valueA' })
-  },
-  methods: {
-    ...mapActions(['rootAction']),
-    ...mapActions('moduleA', ['actionA']),
-    ...mapMutations(['SET_ROOT', 'moduleA/SET_A'])
-  }
-});
+  export default defineComponent({
+    computed: {
+      ...mapState(["rootValue"]),
+      ...mapState("moduleA", { aValue: "valueA" }),
+    },
+    methods: {
+      ...mapActions(["rootAction"]),
+      ...mapActions("moduleA", ["actionA"]),
+      ...mapMutations(["SET_ROOT", "moduleA/SET_A"]),
+    },
+  });
 </script>
 
 <template>
@@ -1029,12 +1064,12 @@ No need to use mappers in Composition API
 
 ```html
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useStore } from 'vuex';
+  import { computed } from "vue";
+  import { useStore } from "vuex";
 
-const store = useStore();
-const rootValue = computed(() => store.state.rootValue);
-const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
+  const store = useStore();
+  const rootValue = computed(() => store.state.rootValue);
+  const doActionA = (p: any) => store.dispatch("moduleA/actionA", p);
 </script>
 
 <template>
@@ -1046,24 +1081,24 @@ const doActionA = (p: any) => store.dispatch('moduleA/actionA', p);
 
 ```html
 <script lang="ts">
-import { mapActions } from 'vuex';
+  import { mapActions } from "vuex";
 
-export default {
-  methods: {
-    // Mapping root-level actions from namespaced modules
-    ...mapActions('moduleA', ['globalAction']), // If globalAction has root: true
-    
-    // Usage with root flag
-    async handleGlobalAction() {
-      // For root actions defined in namespaced modules
-      // You need to pass { root: true } option
-      await this.globalAction(
-        { message: 'Hello' }, 
-        { root: true } // Required for root actions
-      );
-    }
-  }
-};
+  export default {
+    methods: {
+      // Mapping root-level actions from namespaced modules
+      ...mapActions("moduleA", ["globalAction"]), // If globalAction has root: true
+
+      // Usage with root flag
+      async handleGlobalAction() {
+        // For root actions defined in namespaced modules
+        // You need to pass { root: true } option
+        await this.globalAction(
+          { message: "Hello" },
+          { root: true } // Required for root actions
+        );
+      },
+    },
+  };
 </script>
 ```
 
@@ -1074,67 +1109,71 @@ export default {
 Create typed helper functions for a specific namespaced module using `createNamespacedHelpers`. This is useful when you need to access the same module frequently in a component.
 
 **Basic Usage**
+
 ```ts
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers } from "vuex";
 
 // Create helpers for a specific namespace
-const { mapState, mapGetters, mapActions, mapMutations } = createNamespacedHelpers('moduleA');
+const { mapState, mapGetters, mapActions, mapMutations } =
+  createNamespacedHelpers("moduleA");
 
 export default {
   computed: {
     // All mappers are scoped to 'moduleA'
-    ...mapState(['a']),           // maps to moduleA state
-    ...mapGetters(['getterA'])    // maps to moduleA getters
+    ...mapState(["a"]), // maps to moduleA state
+    ...mapGetters(["getterA"]), // maps to moduleA getters
   },
   methods: {
-    ...mapActions(['actionA']),   // maps to moduleA actions
-    ...mapMutations(['mutationA']) // maps to moduleA mutations
-  }
+    ...mapActions(["actionA"]), // maps to moduleA actions
+    ...mapMutations(["mutationA"]), // maps to moduleA mutations
+  },
 };
 ```
 
 **With Nested Modules**
+
 ```ts
 // For deeply nested modules, use the full path
-const { mapState, mapActions } = createNamespacedHelpers('moduleA/moduleAA');
+const { mapState, mapActions } = createNamespacedHelpers("moduleA/moduleAA");
 
 export default {
   computed: {
-    ...mapState(['aa']),          // moduleA/moduleAA state
+    ...mapState(["aa"]), // moduleA/moduleAA state
   },
   methods: {
-    ...mapActions(['actionAA'])   // moduleA/moduleAA actions
-  }
+    ...mapActions(["actionAA"]), // moduleA/moduleAA actions
+  },
 };
 ```
 
 **Array and Object Syntax**
+
 ```ts
-const { mapState, mapActions } = createNamespacedHelpers('moduleA');
+const { mapState, mapActions } = createNamespacedHelpers("moduleA");
 
 export default {
   computed: {
     // Array syntax - uses same name
-    ...mapState(['a']),
-    
+    ...mapState(["a"]),
+
     // Object syntax - rename properties
     ...mapState({
-      moduleAValue: 'a',
-      customName: (state) => state.a.toUpperCase()
-    })
+      moduleAValue: "a",
+      customName: (state) => state.a.toUpperCase(),
+    }),
   },
   methods: {
     // Array syntax
-    ...mapActions(['actionA']),
-    
+    ...mapActions(["actionA"]),
+
     // Object syntax - rename or use custom functions
     ...mapActions({
-      doActionA: 'actionA',
+      doActionA: "actionA",
       customAction: (dispatch, payload) => {
-        return dispatch('actionA', payload);
-      }
-    })
-  }
+        return dispatch("actionA", payload);
+      },
+    }),
+  },
 };
 ```
 
@@ -1144,9 +1183,7 @@ export default {
 - **Full type safety**: All mappers are typed to the specific module
 - **Cleaner code**: Easier to read when working with a single module extensively
 
-
 ---
-
 
 ### Root Actions in Namespaced Modules
 
@@ -1156,24 +1193,28 @@ Root actions allow namespaced modules to expose actions globally, making them ac
 
 ```ts
 // src/store/modules/moduleA/modules/moduleAA/modules/moduleAAA/types.ts
-import type { _Module, StoreActionRecord } from 'strict-vuex';
+import type { _Module, StoreActionRecord } from "strict-vuex";
 
 export type ModuleAAA = _Module<
-  'moduleAAA',
-  'isolated',
+  "moduleAAA",
+  "isolated",
   { valueAAA: string },
   { getterAAA: string },
   {
     // Local action - requires namespace
     localActionAAA: StoreActionRecord<{ data: string }, void>;
-    
+
     // Root action - accessible globally
     globalActionAAA: StoreActionRecord<{ message: string }, boolean, true>; // true = root
-    
+
     // Another root action
-    notifyAllModules: StoreActionRecord<{ alert: string; level: 'info' | 'error' }, void, true>;
+    notifyAllModules: StoreActionRecord<
+      { alert: string; level: "info" | "error" },
+      void,
+      true
+    >;
   },
-  { 
+  {
     SET_AAA: { value: string };
     NOTIFY: { message: string };
   },
@@ -1185,68 +1226,75 @@ export type ModuleAAA = _Module<
 
 ```ts
 // src/store/modules/moduleA/modules/moduleAA/modules/moduleAAA/index.ts
-import type { ModuleAAA } from './types';
+import type { ModuleAAA } from "./types";
 
 const moduleAAA: ModuleAAA = {
   namespaced: true,
-  
+
   state: {
-    valueAAA: 'initial'
+    valueAAA: "initial",
   },
-  
+
   getters: {
-    getterAAA: (state) => state.valueAAA
+    getterAAA: (state) => state.valueAAA,
   },
-  
+
   actions: {
     // Local action - simple function
     localActionAAA: async ({ commit }, payload) => {
-      commit('SET_AAA', { value: payload.data });
+      commit("SET_AAA", { value: payload.data });
     },
-    
+
     // Root action - MUST be an object with root: true
     globalActionAAA: {
       root: true, // Required for root actions
-      handler: async ({ commit, dispatch, rootState, rootGetters }, payload) => {
+      handler: async (
+        { commit, dispatch, rootState, rootGetters },
+        payload
+      ) => {
         // Can access root state and getters directly
-        console.log('Root state:', rootState.rootValue);
-        console.log('Root getter:', rootGetters.rootGetter);
-        
+        console.log("Root state:", rootState.rootValue);
+        console.log("Root getter:", rootGetters.rootGetter);
+
         // Can dispatch other root actions without { root: true }
-        await dispatch('rootAction', { data: 'from globalActionAAA' });
-        
+        await dispatch("rootAction", { data: "from globalActionAAA" });
+
         // Can commit root mutations without { root: true }
-        commit('SET_ROOT', { value: 'updated from moduleAAA' });
-        
+        commit("SET_ROOT", { value: "updated from moduleAAA" });
+
         // Can still commit local mutations
-        commit('moduleA/moduleAAA/SET_AAA', { value: payload.message }, { root: true });
-        
+        commit(
+          "moduleA/moduleAAA/SET_AAA",
+          { value: payload.message },
+          { root: true }
+        );
+
         return true;
-      }
+      },
     },
-    
+
     // Another root action
     notifyAllModules: {
       root: true,
       handler: async ({ dispatch, commit }, payload) => {
         // Notify all modules
-        await dispatch('moduleA/handleNotification', payload, { root: true });
-        await dispatch('moduleB/handleNotification', payload, { root: true });
-        
+        await dispatch("moduleA/handleNotification", payload, { root: true });
+        await dispatch("moduleB/handleNotification", payload, { root: true });
+
         // Update global notification state
-        commit('SET_GLOBAL_NOTIFICATION', payload, { root: true });
-      }
-    }
+        commit("SET_GLOBAL_NOTIFICATION", payload, { root: true });
+      },
+    },
   },
-  
+
   mutations: {
     SET_AAA(state, payload) {
       state.valueAAA = payload.value;
     },
     NOTIFY(state, payload) {
-      console.log('Notification:', payload.message);
-    }
-  }
+      console.log("Notification:", payload.message);
+    },
+  },
 };
 
 export default moduleAAA;
@@ -1260,44 +1308,44 @@ export default {
   methods: {
     async handleActions() {
       // Root action - no namespace needed
-      const result = await this.$store.dispatch('globalActionAAA', { 
-        message: 'Hello from anywhere' 
+      const result = await this.$store.dispatch("globalActionAAA", {
+        message: "Hello from anywhere",
       });
-      
+
       // Also accessible with full path + root option
       await this.$store.dispatch(
-        'moduleA/moduleAAA/globalActionAAA', 
-        { message: 'Hello' },
+        "moduleA/moduleAAA/globalActionAAA",
+        { message: "Hello" },
         { root: true }
       );
-      
+
       // Local action - requires namespace
-      await this.$store.dispatch('moduleA/moduleAAA/localActionAAA', { 
-        data: 'test' 
+      await this.$store.dispatch("moduleA/moduleAAA/localActionAAA", {
+        data: "test",
       });
-      
+
       // Another root action
-      await this.$store.dispatch('notifyAllModules', {
-        alert: 'System update',
-        level: 'info'
+      await this.$store.dispatch("notifyAllModules", {
+        alert: "System update",
+        level: "info",
       });
-    }
-  }
+    },
+  },
 };
 
 // Composition API
 const store = useStore();
 
 // Root action - no namespace
-await store.dispatch('globalActionAAA', { message: 'Hello' });
+await store.dispatch("globalActionAAA", { message: "Hello" });
 
 // Local action - with namespace
-await store.dispatch('moduleA/moduleAAA/localActionAAA', { data: 'test' });
+await store.dispatch("moduleA/moduleAAA/localActionAAA", { data: "test" });
 
 // Root action from deeply nested module
-await store.dispatch('notifyAllModules', { 
-  alert: 'Update', 
-  level: 'error' 
+await store.dispatch("notifyAllModules", {
+  alert: "Update",
+  level: "error",
 });
 ```
 
@@ -1315,24 +1363,24 @@ export default {
       'notifyAllModules', // Another root action
       'rootAction'        // Root level action
     ]),
-    
+
     // Map from namespace (for root actions, need special handling)
     ...mapActions('moduleA/moduleAAA', [
       'localActionAAA',   // Local action
       'globalActionAAA'   // Root action (requires { root: true } when called)
     ]),
-    
+
     async handleMappedActions() {
       // Root actions mapped globally
       await this.globalActionAAA({ message: 'test' });
       await this.notifyAllModules({ alert: 'info', level: 'info' });
-      
+
       // Local action from namespace mapping
       await this.localActionAAA({ data: 'test' });
-      
+
       // Root action from namespace mapping - needs { root: true }
       await this.globalActionAAA(
-        { message: 'test' }, 
+        { message: 'test' },
         { root: true } // Required when mapped from namespace
       );
     }
@@ -1349,15 +1397,19 @@ const someModule: Module = {
   actions: {
     someAction: async ({ dispatch }) => {
       // Dispatch root action from moduleAAA
-      await dispatch('globalActionAAA', { message: 'test' }, { root: true });
-      
+      await dispatch("globalActionAAA", { message: "test" }, { root: true });
+
       // Or without root flag since it's a root action
-      await dispatch('globalActionAAA', { message: 'test' });
-      
+      await dispatch("globalActionAAA", { message: "test" });
+
       // Dispatch local action from another module
-      await dispatch('moduleA/moduleAAA/localActionAAA', { data: 'test' }, { root: true });
-    }
-  }
+      await dispatch(
+        "moduleA/moduleAAA/localActionAAA",
+        { data: "test" },
+        { root: true }
+      );
+    },
+  },
 };
 ```
 
@@ -1388,32 +1440,32 @@ globalAction: StoreActionRecord<PayloadType, ReturnType> // defaults to false
 
 ```ts
 export type CommonModule = _Module<
-  'common',
-  'isolated',
+  "common",
+  "isolated",
   CommonState,
   CommonGetters,
   {
     // Global notification system
     showNotification: StoreActionRecord<
-      { message: string; type: 'success' | 'error' | 'warning' },
+      { message: string; type: "success" | "error" | "warning" },
       void,
       true // Root action
     >;
-    
+
     // Global loading state
     setGlobalLoading: StoreActionRecord<
       { loading: boolean; message?: string },
       void,
       true // Root action
     >;
-    
+
     // Global error handler
     handleGlobalError: StoreActionRecord<
       { error: Error; context?: string },
       void,
       true // Root action
     >;
-    
+
     // Cross-module communication
     syncModules: StoreActionRecord<
       { source: string; target: string; data: any },
@@ -1431,41 +1483,43 @@ const commonModule: CommonModule = {
     showNotification: {
       root: true,
       handler: async ({ commit }, payload) => {
-        commit('ADD_NOTIFICATION', payload, { root: true });
+        commit("ADD_NOTIFICATION", payload, { root: true });
         setTimeout(() => {
-          commit('REMOVE_NOTIFICATION', { id: Date.now() }, { root: true });
+          commit("REMOVE_NOTIFICATION", { id: Date.now() }, { root: true });
         }, 5000);
-      }
+      },
     },
-    
+
     setGlobalLoading: {
       root: true,
       handler: async ({ commit }, payload) => {
-        commit('SET_LOADING', payload, { root: true });
-      }
+        commit("SET_LOADING", payload, { root: true });
+      },
     },
-    
+
     handleGlobalError: {
       root: true,
       handler: async ({ dispatch, commit }, payload) => {
         console.error(`Error in ${payload.context}:`, payload.error);
-        await dispatch('showNotification', {
+        await dispatch("showNotification", {
           message: payload.error.message,
-          type: 'error'
+          type: "error",
         });
-        commit('LOG_ERROR', payload, { root: true });
-      }
+        commit("LOG_ERROR", payload, { root: true });
+      },
     },
-    
+
     syncModules: {
       root: true,
       handler: async ({ dispatch, state }, payload) => {
-        const sourceData = await dispatch(`${payload.source}/getData`, null, { root: true });
+        const sourceData = await dispatch(`${payload.source}/getData`, null, {
+          root: true,
+        });
         await dispatch(`${payload.target}/setData`, sourceData, { root: true });
         return true;
-      }
-    }
-  }
+      },
+    },
+  },
 };
 ```
 
@@ -1479,38 +1533,38 @@ The type system provides full support for registering and unregistering modules 
 
 ```ts
 // Register top-level modules (depth 0)
-store.registerModule('moduleC', moduleCInstance);
-store.registerModule(['moduleC'], moduleCInstance); // Array notation also works
+store.registerModule("moduleC", moduleCInstance);
+store.registerModule(["moduleC"], moduleCInstance); // Array notation also works
 
 // Register nested modules (depth 1+)
-store.registerModule(['moduleA', 'moduleAC'], moduleACInstance);
-store.registerModule(['moduleB', 'moduleBC'], moduleBCInstance);
+store.registerModule(["moduleA", "moduleAC"], moduleACInstance);
+store.registerModule(["moduleB", "moduleBC"], moduleBCInstance);
 
 // Register deeply nested modules
-store.registerModule(['moduleA', 'moduleAA', 'moduleAAC'], moduleAACInstance);
-store.registerModule(['moduleB', 'moduleBB', 'moduleBBC'], moduleBBCInstance);
+store.registerModule(["moduleA", "moduleAA", "moduleAAC"], moduleAACInstance);
+store.registerModule(["moduleB", "moduleBB", "moduleBBC"], moduleBBCInstance);
 
 // ❌ Wrong: Can't use string for nested modules
-store.registerModule('moduleA/moduleAC', moduleACInstance); // Error
-store.registerModule('moduleA.moduleAC', moduleACInstance); // Error
+store.registerModule("moduleA/moduleAC", moduleACInstance); // Error
+store.registerModule("moduleA.moduleAC", moduleACInstance); // Error
 ```
 
 **Dynamic Module Definition**
 
 ```ts
 // Define a dynamic module type
-import type { _Module, StoreActionRecord } from 'strict-vuex';
+import type { _Module, StoreActionRecord } from "strict-vuex";
 
 export type DynamicModuleC = _Module<
-  'moduleC',
-  'isolated',
+  "moduleC",
+  "isolated",
   { valueC: string; dynamicData: any[] },
   { getterC: string; dataCount: number },
-  { 
+  {
     loadDynamicData: StoreActionRecord<{ source: string }, any[]>;
     clearData: StoreActionRecord<null, void>;
   },
-  { 
+  {
     SET_C: { value: string };
     SET_DYNAMIC_DATA: { data: any[] };
   },
@@ -1521,21 +1575,21 @@ const createDynamicModule = (initialValue: string): DynamicModuleC => ({
   namespaced: true,
   state: {
     valueC: initialValue,
-    dynamicData: []
+    dynamicData: [],
   },
   getters: {
     getterC: (state) => state.valueC,
-    dataCount: (state) => state.dynamicData.length
+    dataCount: (state) => state.dynamicData.length,
   },
   actions: {
     loadDynamicData: async ({ commit }, payload) => {
       const data = await fetchData(payload.source);
-      commit('SET_DYNAMIC_DATA', { data });
+      commit("SET_DYNAMIC_DATA", { data });
       return data;
     },
     clearData: async ({ commit }) => {
-      commit('SET_DYNAMIC_DATA', { data: [] });
-    }
+      commit("SET_DYNAMIC_DATA", { data: [] });
+    },
   },
   mutations: {
     SET_C(state, payload) {
@@ -1543,8 +1597,8 @@ const createDynamicModule = (initialValue: string): DynamicModuleC => ({
     },
     SET_DYNAMIC_DATA(state, payload) {
       state.dynamicData = payload.data;
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -1556,56 +1610,58 @@ export default {
   methods: {
     async loadFeatureModule() {
       // Check if module exists
-      if (!this.$store.hasModule('moduleC')) {
+      if (!this.$store.hasModule("moduleC")) {
         // Create and register module
-        const moduleC = createDynamicModule('initial');
-        this.$store.registerModule('moduleC', moduleC);
-        
+        const moduleC = createDynamicModule("initial");
+        this.$store.registerModule("moduleC", moduleC);
+
         // Module is now accessible
-        await this.$store.dispatch('moduleC/loadDynamicData', { source: 'api' });
+        await this.$store.dispatch("moduleC/loadDynamicData", {
+          source: "api",
+        });
         const value = this.$store.state.moduleC.valueC; // typed
       }
     },
-    
+
     async loadNestedModule() {
       // Check nested module
-      if (!this.$store.hasModule(['moduleA', 'moduleAC'])) {
+      if (!this.$store.hasModule(["moduleA", "moduleAC"])) {
         const moduleAC = createNestedModule();
-        this.$store.registerModule(['moduleA', 'moduleAC'], moduleAC);
-        
+        this.$store.registerModule(["moduleA", "moduleAC"], moduleAC);
+
         // Access nested dynamic module
         const state = this.$store.state.moduleA.moduleAC; // typed if defined
       }
     },
-    
+
     unloadModule() {
-      if (this.$store.hasModule('moduleC')) {
+      if (this.$store.hasModule("moduleC")) {
         // Save state if needed
         const state = this.$store.state.moduleC;
-        localStorage.setItem('moduleC', JSON.stringify(state));
-        
+        localStorage.setItem("moduleC", JSON.stringify(state));
+
         // Unregister module
-        this.$store.unregisterModule('moduleC');
+        this.$store.unregisterModule("moduleC");
       }
-    }
-  }
+    },
+  },
 };
 
 // Composition API
 const store = useStore();
 
 async function loadDynamicModule() {
-  if (!store.hasModule('moduleC')) {
-    const moduleC = createDynamicModule('init');
-    store.registerModule('moduleC', moduleC);
+  if (!store.hasModule("moduleC")) {
+    const moduleC = createDynamicModule("init");
+    store.registerModule("moduleC", moduleC);
   }
 }
 
 async function loadNestedDynamic() {
   // Register nested module in moduleB tree
-  if (!store.hasModule(['moduleB', 'moduleBC'])) {
-    const moduleBC = await import('./modules/moduleBC');
-    store.registerModule(['moduleB', 'moduleBC'], moduleBC.default);
+  if (!store.hasModule(["moduleB", "moduleBC"])) {
+    const moduleBC = await import("./modules/moduleBC");
+    store.registerModule(["moduleB", "moduleBC"], moduleBC.default);
   }
 }
 ```
@@ -1618,13 +1674,13 @@ interface ModuleOptions {
 }
 
 // Register with options
-store.registerModule('moduleC', moduleCInstance, { 
-  preserveState: true // Keep existing state if hot reloading
+store.registerModule("moduleC", moduleCInstance, {
+  preserveState: true, // Keep existing state if hot reloading
 });
 
 // For nested modules
-store.registerModule(['moduleA', 'moduleAC'], moduleACInstance, {
-  preserveState: localStorage.getItem('moduleAC') !== null
+store.registerModule(["moduleA", "moduleAC"], moduleACInstance, {
+  preserveState: localStorage.getItem("moduleAC") !== null,
 });
 ```
 
@@ -1632,15 +1688,15 @@ store.registerModule(['moduleA', 'moduleAC'], moduleACInstance, {
 
 ```ts
 // Check top-level modules
-const hasModuleA = store.hasModule('moduleA'); // true
-const hasModuleC = store.hasModule('moduleC'); // false (not registered yet)
+const hasModuleA = store.hasModule("moduleA"); // true
+const hasModuleC = store.hasModule("moduleC"); // false (not registered yet)
 
 // Check nested modules - MUST use array notation
-const hasModuleAA = store.hasModule(['moduleA', 'moduleAA']); // true
-const hasModuleAAA = store.hasModule(['moduleA', 'moduleAA', 'moduleAAA']); // true
+const hasModuleAA = store.hasModule(["moduleA", "moduleAA"]); // true
+const hasModuleAAA = store.hasModule(["moduleA", "moduleAA", "moduleAAA"]); // true
 
 // Check dynamic modules
-const hasModuleAC = store.hasModule(['moduleA', 'moduleAC']); // false initially
+const hasModuleAC = store.hasModule(["moduleA", "moduleAC"]); // false initially
 
 // ❌ Wrong: Can't use string path for nested modules
 // store.hasModule('moduleA/moduleAA'); // Always returns false
@@ -1662,9 +1718,9 @@ function safeModuleAccess<T>(
 // Usage
 const value = safeModuleAccess(
   store,
-  'moduleC',
+  "moduleC",
   () => store.state.moduleC.valueC,
-  'default value'
+  "default value"
 );
 ```
 
@@ -1672,23 +1728,23 @@ const value = safeModuleAccess(
 
 ```ts
 // Unregister top-level module
-store.unregisterModule('moduleC');
+store.unregisterModule("moduleC");
 
 // Unregister nested module
-store.unregisterModule(['moduleA', 'moduleAC']);
-store.unregisterModule(['moduleB', 'moduleBB', 'moduleBBC']);
+store.unregisterModule(["moduleA", "moduleAC"]);
+store.unregisterModule(["moduleB", "moduleBB", "moduleBBC"]);
 
 // Clean up before unregistering
 function cleanUnregister(path: string | string[]) {
   if (store.hasModule(path)) {
     // Dispatch cleanup action if exists
-    const modulePath = Array.isArray(path) ? path.join('/') : path;
+    const modulePath = Array.isArray(path) ? path.join("/") : path;
     try {
       store.dispatch(`${modulePath}/cleanup`, null);
     } catch (e) {
       // Cleanup action might not exist
     }
-    
+
     // Unregister
     store.unregisterModule(path);
   }
@@ -1697,12 +1753,19 @@ function cleanUnregister(path: string | string[]) {
 // Unregister multiple modules
 function unregisterFeature(feature: string) {
   const modulesToRemove = {
-    analytics: ['analytics', ['analytics', 'reports'], ['analytics', 'tracking']],
-    chat: [['features', 'chat'], ['features', 'chat', 'messages']]
+    analytics: [
+      "analytics",
+      ["analytics", "reports"],
+      ["analytics", "tracking"],
+    ],
+    chat: [
+      ["features", "chat"],
+      ["features", "chat", "messages"],
+    ],
   };
-  
+
   const paths = modulesToRemove[feature] || [];
-  paths.forEach(path => cleanUnregister(path));
+  paths.forEach((path) => cleanUnregister(path));
 }
 ```
 
@@ -1712,18 +1775,18 @@ function unregisterFeature(feature: string) {
 // Hot reload for dynamic modules
 if (import.meta.hot) {
   // Preserve state during development
-  import.meta.hot.accept(['./modules/moduleC'], () => {
-    const newModuleC = require('./modules/moduleC').default;
-    
+  import.meta.hot.accept(["./modules/moduleC"], () => {
+    const newModuleC = require("./modules/moduleC").default;
+
     // Update or register module
-    if (store.hasModule('moduleC')) {
+    if (store.hasModule("moduleC")) {
       store.hotUpdate({
         modules: {
-          moduleC: newModuleC
-        }
+          moduleC: newModuleC,
+        },
       });
     } else {
-      store.registerModule('moduleC', newModuleC, { preserveState: true });
+      store.registerModule("moduleC", newModuleC, { preserveState: true });
     }
   });
 }
@@ -1738,6 +1801,7 @@ Vuex modules support two modes that affect how state, getters, actions, and muta
 #### Isolated Mode (namespaced: true)
 
 Isolated modules create a separate namespace, requiring the full path to access their members.
+
 ```ts
 type ModuleA = _Module
   'moduleA',
@@ -1771,17 +1835,19 @@ const moduleA: ModuleA = {
 ```
 
 **Access Pattern:**
+
 ```ts
 // In components
-store.state.moduleA.a                           // ✓
-store.getters['moduleA/getterA']                // ✓
-store.dispatch('moduleA/actionA', { val: 'x' }) // ✓
-store.commit('moduleA/mutationA', { val: 'x' }) // ✓
+store.state.moduleA.a; // ✓
+store.getters["moduleA/getterA"]; // ✓
+store.dispatch("moduleA/actionA", { val: "x" }); // ✓
+store.commit("moduleA/mutationA", { val: "x" }); // ✓
 ```
 
 #### Default Mode (namespaced: false)
 
 Default modules merge their members into the parent scope (usually root).
+
 ```ts
 type ModuleB = _Module
   'moduleB',
@@ -1818,24 +1884,25 @@ const moduleB: ModuleB = {
 ```
 
 **Access Pattern:**
+
 ```ts
 // In components
-store.state.moduleB.b              // ✓ State still nested
-store.getters.getterB              // ✓ Getters at root level
-store.dispatch('actionB', { val: 'x' }) // ✓ Actions at root level
-store.commit('mutationB', { val: 'x' }) // ✓ Mutations at root level
+store.state.moduleB.b; // ✓ State still nested
+store.getters.getterB; // ✓ Getters at root level
+store.dispatch("actionB", { val: "x" }); // ✓ Actions at root level
+store.commit("mutationB", { val: "x" }); // ✓ Mutations at root level
 ```
 
 **Key Differences:**
 
-| Feature | Isolated Mode | Default Mode |
-|---------|---------------|--------------|
-| State Access | `store.state.moduleA.a` | `store.state.moduleB.b` |
-| Getters Access | `store.getters['moduleA/getterA']` | `store.getters.getterB` |
-| Actions Access | `store.dispatch('moduleA/actionA')` | `store.dispatch('actionB')` |
-| Mutations Access | `store.commit('moduleA/mutationA')` | `store.commit('mutationB')` |
-| Root Access | Limited | Full |
-| Namespace Pollution | None | Yes |
+| Feature             | Isolated Mode                       | Default Mode                |
+| ------------------- | ----------------------------------- | --------------------------- |
+| State Access        | `store.state.moduleA.a`             | `store.state.moduleB.b`     |
+| Getters Access      | `store.getters['moduleA/getterA']`  | `store.getters.getterB`     |
+| Actions Access      | `store.dispatch('moduleA/actionA')` | `store.dispatch('actionB')` |
+| Mutations Access    | `store.commit('moduleA/mutationA')` | `store.commit('mutationB')` |
+| Root Access         | Limited                             | Full                        |
+| Namespace Pollution | None                                | Yes                         |
 
 **Recommendation:** Use `isolated` mode for better organization and type safety, especially in large applications.
 
@@ -1846,69 +1913,71 @@ store.commit('mutationB', { val: 'x' }) // ✓ Mutations at root level
 The `createLogger` plugin helps debug your Vuex store by logging mutations and actions with full type safety.
 
 #### Basic Usage
+
 ```ts
-import { createStore, createLogger } from 'vuex';
+import { createStore, createLogger } from "vuex";
 
 export const store = createStore({
   state: () => ({ count: 0 }),
   mutations: {
-    INCREMENT: (state) => state.count++
+    INCREMENT: (state) => state.count++,
   },
-  plugins: [createLogger()]
+  plugins: [createLogger()],
 });
 ```
 
 #### Advanced Configuration
+
 ```ts
-import { createLogger } from 'vuex';
+import { createLogger } from "vuex";
 
 const loggerPlugin = createLogger({
   // Collapse log groups (default: true)
   collapsed: false,
-  
+
   // Filter which mutations to log
   filter(mutation, stateBefore, stateAfter) {
     // Only log INCREMENT mutations
-    return mutation.type === 'INCREMENT';
+    return mutation.type === "INCREMENT";
   },
-  
+
   // Transform state before logging
   transformer(state) {
     // Hide sensitive data
     return {
       ...state,
-      password: '***'
+      password: "***",
     };
   },
-  
+
   // Transform mutation before logging
   mutationTransformer(mutation) {
     return {
       type: mutation.type,
-      payload: mutation.payload
+      payload: mutation.payload,
     };
   },
-  
+
   // Log actions (default: true)
   logActions: true,
-  
+
   // Filter which actions to log
   actionFilter(action, state) {
     // Exclude certain actions
-    return action.type !== 'fetchSensitiveData';
+    return action.type !== "fetchSensitiveData";
   },
-  
+
   // Transform action before logging
   actionTransformer(action) {
     return {
       type: action.type,
-      payload: action.payload
+      payload: action.payload,
     };
   },
-  
+
   // Log mutations (default: true)
   logMutations: true,
-  
+
   // Custom logger (default: console)
   logger: {
     log: (message, color, payload) => {
@@ -1916,41 +1985,46 @@ const loggerPlugin = createLogger({
     },
     group: console.group,
     groupCollapsed: console.groupCollapsed,
-    groupEnd: console.groupEnd
-  }
+    groupEnd: console.groupEnd,
+  },
 });
 
 export const store = createStore({
   // ... store options
-  plugins: [loggerPlugin]
+  plugins: [loggerPlugin],
 });
 ```
 
 #### Type-Safe Filtering
+
 ```ts
-const loggerPlugin = createLogger<StoreRootStateResolved, StoreRootGettersResolved>({
+const loggerPlugin = createLogger<
+  StoreRootStateResolved,
+  StoreRootGettersResolved
+>({
   filter(mutation, stateBefore, stateAfter) {
     // Full intellisense for mutation types
-    if (mutation.type === 'UPDATE_NAME') {
+    if (mutation.type === "UPDATE_NAME") {
       // mutation.payload is typed as { fname: string; lname: string }
-      console.log('Name updated to:', mutation.payload.fname);
+      console.log("Name updated to:", mutation.payload.fname);
       return true;
     }
     return false;
   },
-  
+
   actionFilter(action, state) {
     // Full intellisense for action types
-    if (action.type === 'updateAge') {
+    if (action.type === "updateAge") {
       // action.payload is typed as { value: number }
       return action.payload.value > 18;
     }
     return true;
-  }
+  },
 });
 ```
 
 **Console Output Example:**
+
 ```
 ▼ mutation UPDATE_NAME @ 10:30:15
   ▶ prev state: { fname: 'John', lname: 'Doe', age: 25 }
@@ -1965,6 +2039,7 @@ const loggerPlugin = createLogger<StoreRootStateResolved, StoreRootGettersResolv
 Action handlers receive a context object with full type safety based on the module's scope.
 
 #### Root Level Actions
+
 ```ts
 interface VuexStoreRootActions {
   updateUser: StoreActionRecord<{ id: string; name: string }, User>;
@@ -1978,16 +2053,17 @@ actions: {
     ctx.getters.fullName;               // ✓ Root getters
     ctx.commit('UPDATE_NAME', { ... }); // ✓ Root mutations
     ctx.dispatch('updateAge', { ... }); // ✓ Root actions
-    
+
     ctx.rootState.fname;                // ✓ Same as ctx.state
     ctx.rootGetters.fullName;           // ✓ Same as ctx.getters
-    
+
     return { id: payload.id, name: payload.name };
   }
 }
 ```
 
 #### Isolated Module Actions
+
 ```ts
 type ModuleA = _Module
   'moduleA',
@@ -2007,15 +2083,15 @@ const moduleA: ModuleA = {
       ctx.getters.getterA;                  // ✓ Module getters
       ctx.commit('mutationA', { val: 'x' }); // ✓ Module mutations
       ctx.dispatch('actionA', { val: 'y' }); // ✓ Module actions
-      
+
       // Root scope access
       ctx.rootState.fname;                  // ✓ Root state
       ctx.rootGetters.fullName;             // ✓ Root getters
-      
+
       // Access root mutations/actions (requires { root: true })
       ctx.commit('UPDATE_NAME', { ... }, { root: true });
       ctx.dispatch('updateAge', { ... }, { root: true });
-      
+
       return payload?.val ?? 'A';
     }
   }
@@ -2023,6 +2099,7 @@ const moduleA: ModuleA = {
 ```
 
 #### Default Module Actions
+
 ```ts
 type ModuleB = _Module
   'moduleB',
@@ -2039,17 +2116,17 @@ const moduleB: ModuleB = {
     actionB(ctx, payload) {
       // Module state (nested)
       ctx.state.b;                          // ✓ Module state
-      
+
       // Everything else is at root level
       ctx.getters.getterB;                  // ✓ Module + root getters merged
       ctx.getters.fullName;                 // ✓ Root getters accessible
-      
+
       ctx.commit('mutationB', { val: 'x' }); // ✓ No prefix needed
       ctx.commit('UPDATE_NAME', { ... });   // ✓ Root mutations accessible
-      
+
       ctx.dispatch('actionB', { val: 'y' }); // ✓ No prefix needed
       ctx.dispatch('updateAge', { ... });   // ✓ Root actions accessible
-      
+
       return payload?.val ?? 'B';
     }
   }
@@ -2058,14 +2135,14 @@ const moduleB: ModuleB = {
 
 #### Context Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `state` | Module State | Current module's state (or root state for root actions) |
-| `getters` | Module Getters | Available getters based on scope |
-| `rootState` | Root State | Always the complete root state tree |
-| `rootGetters` | Root Getters | Always all root getters |
-| `commit` | Function | Commit mutations (scoped based on module mode) |
-| `dispatch` | Function | Dispatch actions (scoped based on module mode) |
+| Property      | Type           | Description                                             |
+| ------------- | -------------- | ------------------------------------------------------- |
+| `state`       | Module State   | Current module's state (or root state for root actions) |
+| `getters`     | Module Getters | Available getters based on scope                        |
+| `rootState`   | Root State     | Always the complete root state tree                     |
+| `rootGetters` | Root Getters   | Always all root getters                                 |
+| `commit`      | Function       | Commit mutations (scoped based on module mode)          |
+| `dispatch`    | Function       | Dispatch actions (scoped based on module mode)          |
 
 ---
 
@@ -2074,37 +2151,41 @@ const moduleB: ModuleB = {
 Access state, getters, mutations, and actions from nested modules with full type safety.
 
 #### State Access
+
 ```ts
 // Module hierarchy: root -> moduleA -> moduleAA -> moduleAAA
 
 // Access nested module state
-store.state.moduleA.a;                    // ✓ ModuleA state
-store.state.moduleA.moduleAA.aa;          // ✓ ModuleAA state
+store.state.moduleA.a; // ✓ ModuleA state
+store.state.moduleA.moduleAA.aa; // ✓ ModuleAA state
 store.state.moduleA.moduleAA.moduleAAA.aaa; // ✓ ModuleAAA state
 ```
 
 #### Getters Access (Isolated Modules)
+
 ```ts
 // All modules are isolated (namespaced: true)
-store.getters['moduleA/getterA'];                      // ✓
-store.getters['moduleA/moduleAA/getterAA'];            // ✓
-store.getters['moduleA/moduleAA/moduleAAA/getterAAA']; // ✓
+store.getters["moduleA/getterA"]; // ✓
+store.getters["moduleA/moduleAA/getterAA"]; // ✓
+store.getters["moduleA/moduleAA/moduleAAA/getterAAA"]; // ✓
 ```
 
 #### Actions and Mutations (Isolated Modules)
+
 ```ts
 // Dispatch nested actions
-store.dispatch('moduleA/actionA', { val: 'x' });
-store.dispatch('moduleA/moduleAA/actionAA', { val: 'y' });
-store.dispatch('moduleA/moduleAA/moduleAAA/actionAAA', { val: 'z' });
+store.dispatch("moduleA/actionA", { val: "x" });
+store.dispatch("moduleA/moduleAA/actionAA", { val: "y" });
+store.dispatch("moduleA/moduleAA/moduleAAA/actionAAA", { val: "z" });
 
 // Commit nested mutations
-store.commit('moduleA/mutationA', { val: 'x' });
-store.commit('moduleA/moduleAA/mutationAA', { val: 'y' });
-store.commit('moduleA/moduleAA/moduleAAA/mutationAAA', { val: 'z' });
+store.commit("moduleA/mutationA", { val: "x" });
+store.commit("moduleA/moduleAA/mutationAA", { val: "y" });
+store.commit("moduleA/moduleAA/moduleAAA/mutationAAA", { val: "z" });
 ```
 
 #### Cross-Module Communication
+
 ```ts
 // In moduleAAA action
 actions: {
@@ -2113,27 +2194,28 @@ actions: {
     ctx.state.aa;                              // ✓ Parent state
     ctx.getters['moduleA/moduleAA/getterAA'];  // ✓ Parent getters
     ctx.commit('moduleA/moduleAA/mutationAA', { ... }, { root: true });
-    
+
     // Access root
     ctx.rootState.fname;                       // ✓ Root state
     ctx.rootGetters.fullName;                  // ✓ Root getters
     ctx.commit('UPDATE_NAME', { ... }, { root: true });
-    
+
     // Access sibling modules (if they exist)
     ctx.dispatch('moduleA/moduleAB/actionAB', { ... }, { root: true });
-    
+
     return 'AAA';
   }
 }
 ```
 
 #### Type-Safe Module State Resolution
+
 ```ts
 // Get complete state tree for a specific module by name
-type ModuleAState = ResolveModuleStateByName<'moduleA'>;
+type ModuleAState = ResolveModuleStateByName<"moduleA">;
 // Result: { a: string, moduleAA: { aa: string, moduleAAA: { aaa: string } } }
 
-type ModuleAAState = ResolveModuleStateByName<'moduleAA'>;
+type ModuleAAState = ResolveModuleStateByName<"moduleAA">;
 // Result: { aa: string, moduleAAA: { aaa: string } }
 
 // Usage in components or utilities
@@ -2143,6 +2225,7 @@ function getModuleAState(store: _Store): ModuleAState {
 ```
 
 #### Accessing Nested Modules in Context
+
 ```ts
 // In moduleA action
 actions: {
@@ -2150,14 +2233,14 @@ actions: {
     // Access child module state
     ctx.state.moduleAA.aa;              // ✓ Child state
     ctx.state.moduleAA.moduleAAA.aaa;   // ✓ Grandchild state
-    
+
     // Dispatch to child modules
     ctx.dispatch('moduleAA/actionAA', { val: 'x' });
     ctx.dispatch('moduleAA/moduleAAA/actionAAA', { val: 'y' });
-    
+
     // Commit to child modules
     ctx.commit('moduleAA/mutationAA', { val: 'x' });
-    
+
     return 'A';
   }
 }
@@ -2170,15 +2253,19 @@ actions: {
 This section summarizes the key types and declaration points provided by the `strict-vuex` package so you know where to look when something doesn't type-check.
 
 - `VuexStoreRootState` / `VuexStoreRootGetters` / `VuexStoreRootActions` / `VuexStoreRootMutations`:
+
   - Root-level shape placeholders — add your root-level types here when you need global state/getters/actions/mutations typed.
 
 - `VuexStoreRootModules`:
-  - The single most important interface to populate. Put only your *root* module types here (e.g. `{ moduleA: ModuleA; moduleB: ModuleB }`). The file builds the entire tree from these root entries.
+
+  - The single most important interface to populate. Put only your _root_ module types here (e.g. `{ moduleA: ModuleA; moduleB: ModuleB }`). The file builds the entire tree from these root entries.
 
 - `_Module<ModuleName, Mode, State, Getters, Actions, Mutations, Modules>`:
+
   - Use this generic to describe each module. `Mode` controls namespacing (`'isolated'` === `namespaced: true`, `'default'` === `namespaced: false`).
 
 - `StoreActionRecord<Payload, Return, RootLevel>`:
+
   - Use to declare actions payload/return types and whether they are root-level (`RootLevel = true`).
 
 - Utility/resolution types (read-only):
@@ -2193,6 +2280,76 @@ This section summarizes the key types and declaration points provided by the `st
 - Keep mutations as objects (payloads) rather than primitive payload types — the type system expects consistent payload shapes.
 - For root actions declared with `StoreActionRecord<..., true>`, implement them as objects with `{ root: true, handler(...) { } }` — otherwise they will not be recognized as root actions by the types.
 - Use `skipLibCheck: true` in `tsconfig` if you run into external type conflicts while integrating (temporary mitigation, not a fix).
+-
+
+## ⚡ Performance Tips
+
+For optimal TypeScript performance in large codebases, apply these essential optimizations:
+
+### 1. TypeScript Configuration (Required)
+
+**Vue 3 Projects:** Add to your `tsconfig.app.json`:
+
+```json
+{
+  "compilerOptions": {
+    // 🚀 Incremental compilation (50-70% faster rebuilds)
+    "incremental": true,
+
+    // Skip type checking of declaration files
+    "skipLibCheck": true
+
+    // Note: Vue 3 already includes "tsBuildInfoFile" by default
+  }
+}
+```
+
+**Vue 2 / Other Projects:** Add to your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    // 🚀 Incremental compilation (50-70% faster rebuilds)
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+
+    // Skip type checking of declaration files
+    "skipLibCheck": true
+  }
+}
+```
+
+> **Note:** In Vue 3 projects, use `tsconfig.app.json` (for application code), NOT `tsconfig.node.json` (which is only for build tools).
+
+### 2. VS Code Settings (Optional)
+
+Add to `.vscode/settings.json`:
+
+```json
+{
+  // Increase TypeScript server memory
+  "typescript.tsserver.maxTsServerMemory": 4096
+}
+```
+
+### 3. Git Ignore
+
+Vue 3 projects already ignore build info files. For other projects, add to `.gitignore`:
+
+```gitignore
+*.tsbuildinfo
+```
+
+### 4. Restart TypeScript Server
+
+If experiencing slowdowns in VS Code:
+
+- Press `Cmd/Ctrl + Shift + P`
+- Run "TypeScript: Restart TS Server"
+
+---
+
+**That's it!** These 4 steps provide the most significant performance improvements.
 
 ## Migration Guide
 
@@ -2210,16 +2367,20 @@ If you're migrating an existing Vuex codebase to this typed system, follow these
 Common issues and fast fixes:
 
 - "TypeScript doesn't see my `.d.ts` file":
+
   - Ensure the `.d.ts` path is included in `tsconfig.json` `include` or `typeRoots`. Restart the TS server.
 
 - "No IntelliSense after adding `VuexStoreRootModules` entries":
+
   - Check that the module name string in `_Module<'name', ...>` matches the key used in `VuexStoreRootModules` and at runtime `modules: { name: ... }`.
   - Use `import type` in your declaration file to avoid circular runtime imports.
 
 - "Root actions not available on `store.dispatch`":
+
   - Confirm action type uses `StoreActionRecord<..., ..., true>` and implementation uses object `{ root: true, handler(...) {} }` not a function.
 
 - "Duplicate identifier" or third-party type conflicts:
+
   - Temporarily set `skipLibCheck: true` in `tsconfig`, search for duplicate `.d.ts` files for Vuex, and remove or consolidate them.
 
 - "PNPM hoisting / module not found" errors:
@@ -2230,12 +2391,15 @@ If none of the above helps, run `tsc --noEmit` and inspect the first error — i
 ## FAQ
 
 - Q: Can I use this with Vue 2 / Vuex 3?
+
   - A: The type system targets Vuex 4 / Vue 3 primarily. Many patterns are compatible with Vuex 3 but types and some APIs differ — test in a branch and adapt signatures accordingly.
 
 - Q: Can modules be registered at runtime and still be typed?
+
   - A: Yes — runtime registration works. Types for dynamic modules needs to be included in your declarations (you can declare optional child modules in parent `_Module` types or place dynamic module types somewhere referenced by `VuexStoreRootModules` or other helpers).
 
 - Q: Why do I get `never` for some getter or action types?
+
   - A: Usually because the module type wasn't registered in `VuexStoreRootModules`, or the module `Mode`/`namespaced` setting is inconsistent between type and runtime implementation.
 
 - Q: I use monorepo / pnpm — TypeScript can't find types. What now?
