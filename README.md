@@ -2149,6 +2149,10 @@ This section summarizes the key types and declaration points provided by the `st
 
   - get a module's full resolved state including nested children.
 
+---
+
+**Some Examples:**
+
 ### StoreActionRecord - interface
 
 ```ts
