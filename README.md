@@ -30,7 +30,7 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
       - [Step 2: Register Modules in Type Declaration (CRITICAL STEP)](#step-2-register-modules-in-type-declaration-critical-step)
       - [Step 3: Implement Your Modules](#step-3-implement-your-modules)
       - [Step 4: Create the Store](#step-4-create-the-store)
-      - [Step 5: Install the store instance as a plugin](#step-5-install-the-store-instance-as-a-plugin)
+      - [Step 5: Install The Store Instance As A Plugin](#step-5-install-the-store-instance-as-a-plugin)
       - [Step 6: Verify Type System is Working](#step-6-verify-type-system-is-working)
     - [How the Type System Works](#how-the-type-system-works)
     - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
@@ -805,7 +805,7 @@ const store = createStore({
 export default store;
 ```
 
-#### Step 5: Install the store instance as a plugin
+#### Step 5: Install The Store Instance As A Plugin
 
 ```ts
 // src/main.ts
