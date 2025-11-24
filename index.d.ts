@@ -124,7 +124,7 @@ declare module "vuex" {
    * Creates a new store instance.
    * @param options store options {@link _StoreOptions} object.
    */
-  declare function createStore<
+  function createStore<
     RootState = VuexStoreRootState,
     RootGetters = VuexStoreRootGetters
   >(
@@ -136,22 +136,22 @@ declare module "vuex" {
    * @info Used to access the vuex store instance
    * @param injectKey Your custom injection key
    */
-  declare function useStore<
+  function useStore<
     RootState = StoreRootStateResolved,
     RootGetters = StoreRootGettersResolved
   >(
     injectKey?: InjectionKey<_Store<RootState, RootGetters>> | string
   ): _Store<RootState, RootGetters>;
 
-  declare const mapState: _StateMapper & _StateMapperWithNamespace;
-  declare const mapGetters: _GettersMapper & _GettersMapperWithNamespace;
-  declare const mapActions: _ActionsMapper & _ActionsMapperWithNamespace;
-  declare const mapMutations: _MutationsMapper & _MutationsMapperWithNamespace;
-  declare function createNamespacedHelpers<Namespace extends Namespaces>(
+  const mapState: _StateMapper & _StateMapperWithNamespace;
+  const mapGetters: _GettersMapper & _GettersMapperWithNamespace;
+  const mapActions: _ActionsMapper & _ActionsMapperWithNamespace;
+  const mapMutations: _MutationsMapper & _MutationsMapperWithNamespace;
+  function createNamespacedHelpers<Namespace extends Namespaces>(
     namespace: Namespace
   ): _NamespacedMappers<Namespace>;
 
-  declare function createLogger<
+  function createLogger<
     State extends StoreRootStateResolved = StoreRootStateResolved,
     Getters extends StoreRootGettersResolved = StoreRootGettersResolved
   >(option?: _LoggerOption<State, Getters>): _Plugin<State, Getters>;
