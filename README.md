@@ -26,6 +26,12 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
   - [Quick Start](#quick-start)
     - [Understanding the \_Module Type Parameters](#understanding-the-_module-type-parameters)
     - [Setup Step By Step](#setup-step-by-step)
+      - [Step 1: Define Your Module Types](#step-1-define-your-module-types)
+      - [Step 2: Register Modules in Type Declaration (CRITICAL STEP)](#step-2-register-modules-in-type-declaration-critical-step)
+      - [Step 3: Implement Your Modules](#step-3-implement-your-modules)
+      - [Step 4: Create the Store](#step-4-create-the-store)
+      - [Step 5: Install the store instance as a plugin](#step-5-install-the-store-instance-as-a-plugin)
+      - [Step 6: Verify Type System is Working](#step-6-verify-type-system-is-working)
     - [How the Type System Works](#how-the-type-system-works)
     - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
   - [Usage](#usage)
@@ -70,13 +76,10 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
       - [3. Use Consistent Naming Conventions](#3-use-consistent-naming-conventions)
       - [4. Organize Module Structure](#4-organize-module-structure)
       - [5. Handle Root Actions Properly](#5-handle-root-actions-properly)
-  - [Examples](#examples)
-    - [Complete Todo App Example](#complete-todo-app-example)
   - [⚡ Performance Tips](#-performance-tips)
     - [1. TypeScript Configuration (Recommended)](#1-typescript-configuration-recommended)
-    - [2. VS Code Settings (Optional)](#2-vs-code-settings-optional)
-    - [3. Git Ignore](#3-git-ignore)
-    - [4. Restart TypeScript Server](#4-restart-typescript-server)
+    - [2. Git Ignore](#2-git-ignore)
+    - [3. Restart TypeScript Server](#3-restart-typescript-server)
   - [Migration Guide](#migration-guide)
   - [Troubleshooting](#troubleshooting)
   - [FAQ](#faq)
@@ -634,7 +637,7 @@ const moduleWithNoGetters: ModuleWithNoGetters = {
 
 The key to making the Vuex type system work is proper module registration in the type declarations. Follow these steps to set up your typed store:
 
-**Step 1: Define Your Module Types**
+#### Step 1: Define Your Module Types
 
 Start from the deepest modules and work your way up to the root:
 
@@ -685,7 +688,7 @@ export type ModuleA = _Module<
 >;
 ```
 
-**Step 2: Register Modules in Type Declaration (CRITICAL STEP)**
+#### Step 2: Register Modules in Type Declaration (CRITICAL STEP)
 
 This is the most important step 🔥 - Register your modules at the `VuexStoreRootModules` interface in to actualy make the system see you types - This is the step when the intellisense magical effect will start:
 
@@ -735,7 +738,7 @@ declare module 'strict-vuex' {
 }
 ```
 
-**Step 3: Implement Your Modules**
+#### Step 3: Implement Your Modules
 
 Starting from this step you will find that vuex system is fully typed and TypeScipt will force you to write the right code as your types defined before 😎🥲
 
@@ -768,7 +771,7 @@ export default moduleAAA;
 // And just do the same for other modules...
 ```
 
-**Step 4: Create the Store**
+#### Step 4: Create the Store
 
 ```ts
 // src/store/index.ts
@@ -802,26 +805,36 @@ const store = createStore({
 export default store;
 ```
 
-**Step 5: Verify Type System is Working**
+#### Step 5: Install the store instance as a plugin
+
+```ts
+// src/main.ts
+import { createApp } from 'vue';
+import vuexStore from `./store`;
+const app = createApp({ ... });
+
+app.use(vuexStore);
+```
+
+#### Step 6: Verify Type System is Working
 
 The type system will now provide full IntelliSense - and you will find that it's so easy to use vuex
 
 ```ts
-//
-$store.state.rootValue; // string
-$store.state.moduleA.valueA; // boolean
-$store.state.moduleA.moduleAA.valueAA; // number
-$store.state.moduleA.moduleAA.moduleAAA.valueAAA; // string
+store.state.rootValue; // string
+store.state.moduleA.valueA; // boolean
+store.state.moduleA.moduleAA.valueAA; // number
+store.state.moduleA.moduleAA.moduleAAA.valueAAA; // string
 
 // Namespaced access for isolated modules
-$store.getters["moduleA/getterA"]; // string
-$store.getters["moduleA/getterAA"]; // number (default module, no namespace)
-$store.getters["moduleA/moduleAAA/getterAAA"]; // string
+store.getters["moduleA/getterA"]; // string
+store.getters["moduleA/getterAA"]; // number (default module, no namespace)
+store.getters["moduleA/moduleAAA/getterAAA"]; // string
 
 // Actions with proper payload types
-$store.dispatch("rootAction", { data: "test" });
-$store.dispatch("moduleA/actionA", { id: "123" });
-$store.dispatch("moduleA/moduleAAA/actionAAA", { data: "test" });
+store.dispatch("rootAction", { data: "test" });
+store.dispatch("moduleA/actionA", { id: "123" });
+store.dispatch("moduleA/moduleAAA/actionAAA", { data: "test" });
 ```
 
 ### How the Type System Works
@@ -2390,229 +2403,6 @@ const globalModule: GlobalModule = {
 };
 ```
 
-## Examples
-
-### Complete Todo App Example
-
-```ts
-// types/todo.ts
-export interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-}
-
-export interface TodoFilters {
-  status: 'all' | 'active' | 'completed';
-  searchTerm: string;
-}
-
-// store/modules/todos/types.ts
-import type { Todo, TodoFilters } from '@/types/todo';
-import type { StoreActionRecord } from 'vuex';
-
-export interface TodosState {
-  todos: Todo[];
-  filters: TodoFilters;
-  loading: boolean;
-}
-
-export interface TodosGetters {
-  filteredTodos: Todo[];
-  activeTodosCount: number;
-  completedTodosCount: number;
-}
-
-export interface TodosActions {
-  fetchTodos: StoreActionRecord<null, Todo[]>;
-  addTodo: StoreActionRecord<{ text: string }, Todo>;
-  updateTodo: StoreActionRecord<{ id: string; updates: Partial<Todo> }, boolean>;
-  deleteTodo: StoreActionRecord<{ id: string }, boolean>;
-  toggleTodo: StoreActionRecord<{ id: string }, boolean>;
-  clearCompleted: StoreActionRecord<null, number>;
-}
-
-export interface TodosMutations {
-  SET_TODOS: { todos: Todo[] };
-  ADD_TODO: { todo: Todo };
-  UPDATE_TODO: { id: string; updates: Partial<Todo> };
-  DELETE_TODO: { id: string };
-  SET_FILTER: { filter: Partial<TodoFilters> };
-  SET_LOADING: { loading: boolean };
-}
-
-// store/modules/todos/index.ts
-import type { _Module } from 'vuex';
-import type { TodosState, TodosGetters, TodosActions, TodosMutations } from './types';
-import { v4 as uuidv4 } from 'uuid';
-
-export type TodosModule = _Module<
-  'todos',
-  'isolated',
-  TodosState,
-  TodosGetters,
-  TodosActions,
-  TodosMutations
->;
-
-const todosModule: TodosModule = {
-  namespaced: true,
-
-  state: () => ({
-    todos: [],
-    filters: {
-      status: 'all',
-      searchTerm: ''
-    },
-    loading: false
-  }),
-
-  getters: {
-    filteredTodos: (state) => {
-      let filtered = state.todos;
-
-      // Filter by status
-      if (state.filters.status !== 'all') {
-        filtered = filtered.filter(todo =>
-          state.filters.status === 'completed' ? todo.completed : !todo.completed
-        );
-      }
-
-      // Filter by search term
-      if (state.filters.searchTerm) {
-        filtered = filtered.filter(todo =>
-          todo.text.toLowerCase().includes(state.filters.searchTerm.toLowerCase())
-        );
-      }
-
-      return filtered;
-    },
-
-    activeTodosCount: (state) =>
-      state.todos.filter(todo => !todo.completed).length,
-
-    completedTodosCount: (state) =>
-      state.todos.filter(todo => todo.completed).length
-  },
-
-  actions: {
-    fetchTodos: async ({ commit }) => {
-      commit('SET_LOADING', { loading: true });
-      try {
-        const response = await api.getTodos();
-        commit('SET_TODOS', { todos: response.data });
-        return response.data;
-      } finally {
-        commit('SET_LOADING', { loading: false });
-      }
-    },
-
-    addTodo: async ({ commit }, payload) => {
-      const newTodo: Todo = {
-        id: uuidv4(),
-        text: payload.text,
-        completed: false,
-        createdAt: new Date()
-      };
-      commit('ADD_TODO', { todo: newTodo });
-      return newTodo;
-    },
-
-    updateTodo: async ({ commit }, payload) => {
-      commit('UPDATE_TODO', payload);
-      return true;
-    },
-
-    toggleTodo: async ({ commit, state }, payload) => {
-      const todo = state.todos.find(t => t.id === payload.id);
-      if (todo) {
-        commit('UPDATE_TODO', {
-          id: payload.id,
-          updates: { completed: !todo.completed }
-        });
-        return true;
-      }
-      return false;
-    },
-
-    deleteTodo: async ({ commit }, payload) => {
-      commit('DELETE_TODO', payload);
-      return true;
-    },
-
-    clearCompleted: async ({ commit, state }) => {
-      const completed = state.todos.filter(t => t.completed);
-      completed.forEach(todo => {
-        commit('DELETE_TODO', { id: todo.id });
-      });
-      return completed.length;
-    }
-  },
-
-  mutations: {
-    SET_TODOS(state, payload) {
-      state.todos = payload.todos;
-    },
-
-    ADD_TODO(state, payload) {
-      state.todos.push(payload.todo);
-    },
-
-    UPDATE_TODO(state, payload) {
-      const index = state.todos.findIndex(t => t.id === payload.id);
-      if (index !== -1) {
-        state.todos[index] = { ...state.todos[index], ...payload.updates };
-      }
-    },
-
-    DELETE_TODO(state, payload) {
-      state.todos = state.todos.filter(t => t.id !== payload.id);
-    },
-
-    SET_FILTER(state, payload) {
-      state.filters = { ...state.filters, ...payload.filter };
-    },
-
-    SET_LOADING(state, payload) {
-      state.loading = payload.loading;
-    }
-  }
-};
-
-export default todosModule;
-
-// components/TodoList.vue
-<template>
-  <div class="todo-list">
-    <div v-if="loading">Loading...</div>
-    <ul v-else>
-      <li v-for="todo in filteredTodos" :key="todo.id">
-        <input
-          type="checkbox"
-          :checked="todo.completed"
-          @change="toggleTodo({ id: todo.id })"
-        />
-        <span :class="{ completed: todo.completed }">{{ todo.text }}</span>
-        <button @click="deleteTodo({ id: todo.id })">Delete</button>
-      </li>
-    </ul>
-    <div class="stats">
-      Active: {{ activeTodosCount }} | Completed: {{ completedTodosCount }}
-    </div>
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import { mapState, mapGetters, mapActions } from 'vuex';
-
-export default defineComponent({
-  computed: {
-    ...mapState('todos', ['loading']),
-    ...mapGetters('todos', ['filteredTodos
-```
-
 ## ⚡ Performance Tips
 
 For optimal TypeScript performance in large codebases, apply these essential optimizations:
@@ -2652,18 +2442,7 @@ For optimal TypeScript performance in large codebases, apply these essential opt
 
 > **Note:** In Vue 3 projects, use `tsconfig.app.json` (for application code), NOT `tsconfig.node.json` (which is only for build tools).
 
-### 2. VS Code Settings (Optional)
-
-Add to `.vscode/settings.json`:
-
-```json
-{
-  // Increase TypeScript server memory
-  "typescript.tsserver.maxTsServerMemory": 4096
-}
-```
-
-### 3. Git Ignore
+### 2. Git Ignore
 
 Vue 3 projects already ignore build info files. For other projects, add to `.gitignore`:
 
@@ -2671,7 +2450,7 @@ Vue 3 projects already ignore build info files. For other projects, add to `.git
 *.tsbuildinfo
 ```
 
-### 4. Restart TypeScript Server
+### 3. Restart TypeScript Server
 
 If experiencing slowdowns in VS Code:
 
