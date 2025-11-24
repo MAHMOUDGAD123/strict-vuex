@@ -1,3 +1,4 @@
+import "vuex";
 import type {
   App,
   WatchOptions,
@@ -1786,7 +1787,7 @@ type TupleToPath<T extends readonly string[]> = T extends readonly [
 /**
  * Converts a module name to its path as a tuple.
  * @template Name - The module name
- * 
+ *
  * @example
  * ```ts
  * type Tuple = NameToTuple<'moduleC'>; // returns ['moduleA', 'moduleB', 'moduleC']
