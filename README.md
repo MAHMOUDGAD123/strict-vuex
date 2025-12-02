@@ -698,7 +698,7 @@ And you can use the next interfaces to define the root data if you want too:
 
 `VuexStoreRootState`, `VuexStoreRootGetters`, `VuexStoreRootActions`, `VuexStoreRootMutations`
 
-And you can do this by simply extending the `strict-vuex` module in the app and i choose to extend it in the `src/store/index.ts` file which contains the root level data:
+And you can do this by simply extending the `strict-vuex` module in the app and i choose to extend it in the `src/store/types.d.ts` file which contains the root level data:
 
 ```ts
 // src/store/index.ts
@@ -706,7 +706,10 @@ import type { ModuleA } from '@/store/modules/moduleA/types';
 import type { ModuleB } from '@/store/modules/moduleB/types';
 
 const store = createStore({ ... });
+```
 
+```ts
+// src/store/types.d.ts
 declare module 'strict-vuex' {
   // Root level configurations
   interface VuexStoreRootState {
