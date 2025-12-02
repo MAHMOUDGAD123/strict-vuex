@@ -702,14 +702,15 @@ And you can do this by simply extending the `strict-vuex` module in the app and 
 
 ```ts
 // src/store/index.ts
-import type { ModuleA } from '@/store/modules/moduleA/types';
-import type { ModuleB } from '@/store/modules/moduleB/types';
 
 const store = createStore({ ... });
 ```
 
 ```ts
 // src/store/types.d.ts
+import type { ModuleA } from '@/store/modules/moduleA/types';
+import type { ModuleB } from '@/store/modules/moduleB/types';
+
 declare module 'strict-vuex' {
   // Root level configurations
   interface VuexStoreRootState {
