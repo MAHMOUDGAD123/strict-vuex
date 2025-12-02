@@ -702,8 +702,12 @@ And you can do this by simply extending the `strict-vuex` module in the app and 
 
 ```ts
 // src/store/index.ts
+import { moduleA } from '@/store/modules/moduleA';
+import { moduleB } from '@/store/modules/moduleB';
 
-const store = createStore({ ... });
+const store = createStore({
+  modules: { moduleA, moduleB }
+});
 ```
 
 ```ts
