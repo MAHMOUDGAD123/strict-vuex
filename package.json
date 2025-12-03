@@ -1,6 +1,6 @@
 {
   "name": "strict-vuex",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "A comprehensive TypeScript type system to create a fully typed Vuex store",
   "types": "index.d.ts",
   "files": [
