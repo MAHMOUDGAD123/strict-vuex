@@ -83,6 +83,7 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
   - [Migration Guide](#migration-guide)
   - [Troubleshooting](#troubleshooting)
   - [FAQ](#faq)
+    - [Circular Dependency Issue 💩](#circular-dependency-issue-)
 
 ## Features
 
@@ -2528,3 +2529,24 @@ If none of the above helps, run `tsc --noEmit` and inspect the first error — i
   - A: Ensure `typeRoots` and `paths` are configured, include the `.d.ts` in `tsconfig` `include`, and add a `paths` map for `vuex` if pnpm hoists differently (see PNPM section).
 
 ---
+
+
+### Circular Dependency Issue 💩
+
+**The cycle happens because:**
+
+- ModuleA is defined using _Module<'moduleA', ...>
+- _Module uses ModulesGettersMapResolved[ModuleName] in its getters/actions
+- ModulesGettersMapResolved is built from VuexStoreRootModules
+- VuexStoreRootModules contains ModuleA
+- → CYCLE!
+
+```text
+ModuleA 
+  → _Module (needs ModulesGettersMapResolved['moduleA'])
+    → ModulesGettersMapResolved (needs VuexStoreRootModules)
+      → VuexStoreRootModules (contains ModuleA)
+        → ModuleA ← CIRCULAR!
+```
+
+**Tip**: Use `@ts-ignore` if you face this issue.
