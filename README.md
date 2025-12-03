@@ -703,20 +703,20 @@ And you can do this by simply extending the `strict-vuex` module in the app and 
 
 ```ts
 // src/store/index.ts
-import { moduleA } from '@/store/modules/moduleA';
-import { moduleB } from '@/store/modules/moduleB';
+import { moduleA } from "@/store/modules/moduleA";
+import { moduleB } from "@/store/modules/moduleB";
 
 const store = createStore({
-  modules: { moduleA, moduleB }
+  modules: { moduleA, moduleB },
 });
 ```
 
 ```ts
 // src/store/types.d.ts
-import type { ModuleA } from '@/store/modules/moduleA/types';
-import type { ModuleB } from '@/store/modules/moduleB/types';
+import type { ModuleA } from "@/store/modules/moduleA/types";
+import type { ModuleB } from "@/store/modules/moduleB/types";
 
-declare module 'strict-vuex' {
+declare module "strict-vuex" {
   // Root level configurations
   interface VuexStoreRootState {
     rootValue: string;
@@ -741,7 +741,7 @@ declare module 'strict-vuex' {
   // So, you only need to define the root modules only like this
   // This is the step when the intellisense magical effect will start
   interface VuexStoreRootModules {
-    moduleA: ModuleA;  // The key must match the module name in store
+    moduleA: ModuleA; // The key must match the module name in store
     moduleB: ModuleB;
   }
 }
@@ -2530,23 +2530,20 @@ If none of the above helps, run `tsc --noEmit` and inspect the first error — i
 
 ---
 
-
 ### Circular Dependency Issue
 
 **The cycle happens because:**
 
-- ModuleA is defined using _Module<'moduleA', ...>
-- _Module uses ModulesGettersMapResolved[ModuleName] in its getters/actions
+- ModuleA is defined using \_Module<'moduleA', ...>
+- \_Module uses ModulesGettersMapResolved[ModuleName] in its getters/actions
 - ModulesGettersMapResolved is built from VuexStoreRootModules
 - VuexStoreRootModules contains ModuleA
 - → CYCLE!
 
 ```text
-ModuleA 
+ModuleA
   → _Module (needs ModulesGettersMapResolved['moduleA'])
     → ModulesGettersMapResolved (needs VuexStoreRootModules)
       → VuexStoreRootModules (contains ModuleA)
         → ModuleA ← CIRCULAR!
 ```
-
-**Tip**: Use `@ts-ignore` if you face this issue to ignore the issue.
