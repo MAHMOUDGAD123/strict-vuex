@@ -838,6 +838,10 @@ type _TypedMutationPayload<M extends keyof StoreRootMutationsResolved> =
 // Modules Start
 // ---------------------------------------------------------------
 
+// Using Lazy<T> type to fix the circularly references issue.
+// The key insight is using [ModuleName] extends [keyof X] instead of ModuleName extends keyof X - the tuple
+// form prevents distributive conditional types and helps TypeScript defer the evaluation.
+
 /**
  *  A custom version of {@link Module} interface.
  * - `ModuleName`: must be the same as the name of the runtime module
@@ -882,7 +886,7 @@ export interface _Module<
   Getters extends StoreGettersGeneric = StoreGettersGeneric,
   Actions extends StoreActionsGeneric = StoreActionsGeneric,
   Mutations extends StoreMutationsGeneric = StoreMutationsGeneric,
-  Modules = undefined // must be undefined by default
+  Modules = undefined
 > {
   namespaced: Mode extends "default" ? false : true;
 
@@ -891,22 +895,32 @@ export interface _Module<
   getters?: _GetterTree<
     State &
       (Modules extends undefined
-        ? {} // Get nothing if undefined
+        ? {}
         : {
-            [K in keyof Modules]: ResolveModuleState<Modules[K]>; // Get only the children modules state
+            [K in keyof Modules]: ResolveModuleState<Modules[K]>;
           }),
     Getters,
-    ModulesGettersMapResolved[ModuleName]
+    // Defer resolution to break the cycle
+    Lazy<
+      [ModuleName] extends [keyof ModulesGettersMapResolved]
+        ? ModulesGettersMapResolved[ModuleName]
+        : Getters
+    >
   >;
 
   actions?: _ActionTree<
     State &
       (Modules extends undefined
-        ? {} // Get nothing if undefined
+        ? {}
         : {
-            [K in keyof Modules]: ResolveModuleState<Modules[K]>; // Get only the children modules state
+            [K in keyof Modules]: ResolveModuleState<Modules[K]>;
           }),
-    ModulesGettersMapResolved[ModuleName],
+    // Defer resolution to break the cycle
+    Lazy<
+      [ModuleName] extends [keyof ModulesGettersMapResolved]
+        ? ModulesGettersMapResolved[ModuleName]
+        : Getters
+    >,
     Actions,
     ModuleName
   >;
@@ -914,9 +928,9 @@ export interface _Module<
   mutations?: _MutationTree<
     State &
       (Modules extends undefined
-        ? {} // Get nothing if undefined
+        ? {}
         : {
-            [K in keyof Modules]: ResolveModuleState<Modules[K]>; // Get only the children modules state
+            [K in keyof Modules]: ResolveModuleState<Modules[K]>;
           }),
     Mutations
   >;
@@ -2449,6 +2463,11 @@ type PrefixHelper<T, Path extends string> = Path extends ""
   : {
       [K in keyof T as `${Path}/${K & string}`]: T[K];
     };
+
+/**
+ * Used to fix the circularly references issue with {@link _Module} interface.
+ */
+type Lazy<T> = T extends infer U ? U : never;
 
 // Utilities End
 // ------------------------------------------------------------------
