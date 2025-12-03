@@ -2549,4 +2549,4 @@ ModuleA
         → ModuleA ← CIRCULAR!
 ```
 
-**Tip**: Use `@ts-ignore` if you face this issue.
+**Tip**: Use `@ts-ignore` if you face this issue to ignore the issue.
