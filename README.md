@@ -83,7 +83,7 @@ A comprehensive TypeScript type system for Vuex that provides complete type safe
   - [Migration Guide](#migration-guide)
   - [Troubleshooting](#troubleshooting)
   - [FAQ](#faq)
-    - [Circular Dependency Issue 💩](#circular-dependency-issue-)
+    - [Circular Dependency Issue](#circular-dependency-issue)
 
 ## Features
 
@@ -2531,7 +2531,7 @@ If none of the above helps, run `tsc --noEmit` and inspect the first error — i
 ---
 
 
-### Circular Dependency Issue 💩
+### Circular Dependency Issue
 
 **The cycle happens because:**
 
